@@ -54,12 +54,28 @@ const Admin = () => {
     return format(new Date(dateString), "dd MMMM yyyy, HH:mm");
   };
 
-  // Marrja e mesazheve nga API
+  // Marrja e mesazheve nga API me autentifikim bazik
   const { data: comments, isLoading, error } = useQuery<{success: boolean, data: Comment[]}>({
     queryKey: ['/api/comments'],
     enabled: isAuthenticated, // Marrja e të dhënave vetëm nëse përdoruesi është i autentifikuar
     refetchInterval: 30000, // Rifreskimi i të dhënave çdo 30 sekonda
     refetchOnMount: true,
+    queryFn: async () => {
+      // Shtimi i kredencialeve për autentifikim bazik
+      const credentials = btoa('admin:admin123'); // admin:admin123 enkoduar në base64
+      const response = await fetch('/api/comments', {
+        headers: {
+          'Authorization': `Basic ${credentials}`
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Gabim në marrjen e të dhënave');
+      }
+      
+      return response.json();
+    }
   });
 
   // Funksioni për autentifikim
@@ -113,22 +129,74 @@ const Admin = () => {
     setNewsForm(prev => ({ ...prev, [name]: value }));
   };
   
-  // Funksioni për ngarkimin e imazheve
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Funksioni për ngarkimin e imazheve me server-side storage
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
+      // Shto imazhet në listën lokale
       const files = Array.from(e.target.files);
       setSelectedImages(prev => [...prev, ...files]);
       
-      // Krijimi i URL-ve për paraqitjen e imazheve
+      // Krijoj URL-të për paraqitjen paraprakisht të imazheve
       const newPreviews = files.map(file => URL.createObjectURL(file));
       setMediaPreview(prev => [...prev, ...newPreviews]);
       
-      // Nëse nuk është përcaktuar ende një imazh kryesor, përdor imazhin e parë
-      if (!newsForm.image && newPreviews.length > 0) {
-        setNewsForm(prev => ({
-          ...prev,
-          image: newPreviews[0],
-        }));
+      try {
+        // Për çdo file, ngarkoje në server dhe merr URL-të e ruajtura
+        const uploadPromises = files.map(async (file) => {
+          // Lexoj file si base64
+          const reader = new FileReader();
+          const fileDataPromise = new Promise<string>((resolve) => {
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(file);
+          });
+          
+          const fileData = await fileDataPromise;
+          
+          // Dërgoj të dhënat në server
+          const response = await fetch('/api/upload-image', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              fileName: file.name,
+              fileType: file.type,
+              fileData: fileData
+            })
+          });
+          
+          if (!response.ok) {
+            throw new Error('Gabim në ngarkimin e imazhit në server');
+          }
+          
+          // Merr URL e kthyer nga serveri
+          const result = await response.json();
+          return result.url;
+        });
+        
+        // Prit që të gjitha ngarkimet të përfundojnë
+        const uploadedUrls = await Promise.all(uploadPromises);
+        
+        // Nëse nuk është përcaktuar ende një imazh kryesor, përdor imazhin e parë të ngarkuar
+        if (!newsForm.image && uploadedUrls.length > 0) {
+          setNewsForm(prev => ({
+            ...prev,
+            image: uploadedUrls[0],
+          }));
+          
+          toast({
+            title: "Imazhi u ngarkua me sukses",
+            description: "Imazhi u ruajt në server dhe mund të përdoret për lajmin.",
+            variant: "default"
+          });
+        }
+      } catch (error) {
+        console.error('Gabim në ngarkimin e imazhit:', error);
+        toast({
+          title: "Gabim në ngarkimin e imazhit",
+          description: "Ndodhi një gabim gjatë ngarkimit të imazhit. Ju lutem provoni përsëri.",
+          variant: "destructive"
+        });
       }
     }
   };
@@ -163,6 +231,17 @@ const Admin = () => {
       const currentDate = new Date();
       const formattedDate = format(currentDate, "dd MMMM yyyy");
       
+      // Përdor URL-në e imazhit aktual - nuk duhet të jetë blob: më pasi e kemi ngarkuar tashmë në server
+      let finalImageUrl = newsForm.image;
+      
+      // Kontrollo nëse imazhi është ende URL i brendshëm i objektit (e cila ndodh nëse ngarkimi API dështoi)
+      if (newsForm.image.startsWith('blob:')) {
+        console.warn('Imazhi ende përdor URL lokale blob:, që mund të shkaktojë probleme!');
+        
+        // Në këtë rast, përdorim një URL të jashtëm të sigurt
+        finalImageUrl = `https://placehold.co/600x400/26a69a/ffffff?text=${encodeURIComponent(newsForm.title)}`;
+      }
+      
       const newNewsItem: Omit<NewsItem, "id"> = {
         title: newsForm.title,
         category: newsForm.category,
@@ -170,7 +249,7 @@ const Admin = () => {
         date: formattedDate,
         description: newsForm.description,
         content: newsForm.content,
-        image: newsForm.image,
+        image: finalImageUrl, // Përdor URL-në e përpunuar
         author: newsForm.author,
         tags: newsForm.tags.split(',').map(tag => tag.trim())
       };

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 
 interface NewsCardProps {
+  id?: number;
   category: string;
   categoryColor: string;
   date: string;
@@ -9,7 +10,7 @@ interface NewsCardProps {
   image: string;
 }
 
-export function NewsCard({ category, categoryColor, date, title, description, image }: NewsCardProps) {
+export function NewsCard({ id, category, categoryColor, date, title, description, image }: NewsCardProps) {
   return (
     <motion.div 
       className="section-card bg-[#121212] rounded-xl overflow-hidden shadow-lg"
@@ -40,7 +41,7 @@ export function NewsCard({ category, categoryColor, date, title, description, im
         </div>
         <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
         <p className="text-[#c0c0c0] mb-4">{description}</p>
-        <a href="#" className="text-[#26a69a] hover:underline flex items-center">
+        <a href={id ? `/news/${id}` : "#"} className="text-[#26a69a] hover:underline flex items-center">
           Lexo më shumë 
           <i className="fas fa-arrow-right ml-2"></i>
         </a>

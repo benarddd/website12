@@ -19,6 +19,7 @@ export default function NewsSection() {
           {news.map((item, index) => (
             <NewsCard
               key={index}
+              id={item.id}
               category={item.category}
               categoryColor={item.categoryColor}
               date={item.date}
@@ -31,7 +32,7 @@ export default function NewsSection() {
         
         <div className="text-center mt-12">
           <motion.a 
-            href="#" 
+            href="/news" 
             className="inline-block bg-primary hover:bg-opacity-80 text-white border border-[#26a69a] px-6 py-3 rounded-md transition-all duration-300"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -77,7 +78,7 @@ export default function NewsSection() {
                 Përgatitu për sukses! Informacione të rëndësishme dhe udhëzime për nxënësit që do të japin provimet e Maturës Shtetërore në 2025.
               </motion.p>
               <motion.a 
-                href="#" 
+                href="/matura-shtetrore" 
                 className="bg-white text-[#7e57c2] hover:bg-opacity-80 px-6 py-3 rounded-md transition-all duration-300 font-medium"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
