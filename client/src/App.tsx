@@ -15,6 +15,7 @@ import Pisa2025 from "./pages/programs/Pisa2025";
 import ScienceClub from "./pages/clubs/ScienceClub";
 import ArtClub from "./pages/clubs/ArtClub";
 import DebateClub from "./pages/clubs/DebateClub";
+import PageTransition from "./components/PageTransition";
 
 // Loading component
 const PageLoader = () => (
@@ -34,27 +35,29 @@ const Admin = lazy(() => import("./pages/Admin"));
 function AppRouter() {
   return (
     <Suspense fallback={<PageLoader />}>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/about" component={About} />
-        <Route path="/news" component={News} />
-        <Route path="/news/:id" component={NewsDetail} />
-        <Route path="/sections" component={Sections} />
-        <Route path="/schedule" component={Schedule} />
-        <Route path="/calendar" component={Calendar} />
-        <Route path="/maturashtetrore" component={MaturaShtetrore} />
-        <Route path="/library/digital-library" component={DigitalLibrary} />
-        <Route path="/laboratories" component={Laboratories} />
-        <Route path="/counseling" component={Counseling} />
-        <Route path="/admin" component={Admin} />
-        <Route path="/programs/pisa-2025" component={Pisa2025} />
-        <Route path="/clubs/science" component={ScienceClub} />
-        <Route path="/clubs/art" component={ArtClub} />
-        <Route path="/clubs/debate" component={DebateClub} />
-        <Route path="/privacy-policy" component={lazy(() => import("./pages/legal/PrivacyPolicy"))} />
-        <Route path="/terms" component={lazy(() => import("./pages/legal/Terms"))} />
-        <Route component={NotFound} />
-      </Switch>
+      <PageTransition>
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/about" component={About} />
+          <Route path="/news" component={News} />
+          <Route path="/news/:id" component={NewsDetail} />
+          <Route path="/sections" component={Sections} />
+          <Route path="/schedule" component={Schedule} />
+          <Route path="/calendar" component={Calendar} />
+          <Route path="/maturashtetrore" component={MaturaShtetrore} />
+          <Route path="/library/digital-library" component={DigitalLibrary} />
+          <Route path="/laboratories" component={Laboratories} />
+          <Route path="/counseling" component={Counseling} />
+          <Route path="/admin" component={Admin} />
+          <Route path="/programs/pisa-2025" component={Pisa2025} />
+          <Route path="/clubs/science" component={ScienceClub} />
+          <Route path="/clubs/art" component={ArtClub} />
+          <Route path="/clubs/debate" component={DebateClub} />
+          <Route path="/privacy-policy" component={lazy(() => import("./pages/legal/PrivacyPolicy"))} />
+          <Route path="/terms" component={lazy(() => import("./pages/legal/Terms"))} />
+          <Route component={NotFound} />
+        </Switch>
+      </PageTransition>
     </Suspense>
   );
 }
