@@ -1,0 +1,36 @@
+/* Import performance utility classes */
+@import './lib/performance.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* Global performance optimizations */
+.animate-on-scroll {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+.text-animate {
+  will-change: transform, opacity, color;
+}
+
+.bg-animate {
+  will-change: background, opacity;
+}
+
+/* Optimize images with hardware acceleration */
+img {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
