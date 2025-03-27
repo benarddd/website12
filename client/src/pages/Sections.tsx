@@ -38,7 +38,7 @@ export default function Sections() {
                 </div>
                 <h4 className="text-xl font-bold text-white mb-2">Biblioteka Digjitale</h4>
                 <p className="text-[#c0c0c0] mb-4">Qasje në libra elektronikë, revista dhe burime të tjera akademike për nxënësit.</p>
-                <a href="#" className="text-[#26a69a] hover:underline flex items-center text-sm">
+                <a href="/library/digital-library" className="text-[#26a69a] hover:underline flex items-center text-sm">
                   Shiko më shumë <i className="fas fa-arrow-right ml-2"></i>
                 </a>
               </motion.div>
@@ -70,7 +70,7 @@ export default function Sections() {
                 </div>
                 <h4 className="text-xl font-bold text-white mb-2">Laboratorë</h4>
                 <p className="text-[#c0c0c0] mb-4">Laboratorë moderne për fizikë, kimi, biologji dhe informatikë.</p>
-                <a href="#" className="text-[#FF9800] hover:underline flex items-center text-sm">
+                <a href="/laboratories" className="text-[#FF9800] hover:underline flex items-center text-sm">
                   Shiko më shumë <i className="fas fa-arrow-right ml-2"></i>
                 </a>
               </motion.div>
@@ -86,7 +86,7 @@ export default function Sections() {
                 </div>
                 <h4 className="text-xl font-bold text-white mb-2">Mbështetje Psikologjike</h4>
                 <p className="text-[#c0c0c0] mb-4">Shërbime këshillimi dhe mbështetje emocionale për nxënësit dhe familjet.</p>
-                <a href="#" className="text-[#F44336] hover:underline flex items-center text-sm">
+                <a href="/counseling" className="text-[#F44336] hover:underline flex items-center text-sm">
                   Shiko më shumë <i className="fas fa-arrow-right ml-2"></i>
                 </a>
               </motion.div>
