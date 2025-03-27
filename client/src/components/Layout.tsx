@@ -3,6 +3,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import BackToTop from "./BackToTop";
 import { Particles } from "./ui/particles";
+import BackgroundLogo from "./BackgroundLogo";
 
 interface LayoutProps {
   children: ReactNode;
@@ -34,6 +35,7 @@ export default function Layout({ children }: LayoutProps) {
     <div className="font-poppins text-light bg-dark min-h-screen flex flex-col relative">
       <div className="animated-bg absolute inset-0 z-0"></div>
       <Particles />
+      <BackgroundLogo count={7} opacity={0.08} />
       <Header />
       <main className="flex-grow relative z-10">
         {children}

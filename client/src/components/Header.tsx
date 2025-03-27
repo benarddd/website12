@@ -110,6 +110,8 @@ export default function Header() {
                 size="medium" 
                 withShadow={isScrolled} 
                 animated={true}
+                pulse={isScrolled}
+                colorEffect={true}
               />
             </motion.div>
             <div className="hidden md:block">

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useMemo } from "react";
 import { motion, useAnimation, useScroll, useTransform } from "framer-motion";
 import { Link } from "wouter";
+import SchoolLogo from "@/components/SchoolLogo";
 
 export default function ModernHeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -250,6 +251,14 @@ export default function ModernHeroSection() {
           animate={{...floatingAnimation, transition: {...floatingAnimation.transition, delay: 2}}}
           style={{ willChange: "transform" }}
         />
+        
+        {/* School Logo Animation in Background */}
+        <div className="absolute top-10 right-10" style={{ opacity: 0.15 }}>
+          <SchoolLogo size="xlarge" withShadow={true} floating={true} pulse={false} colorEffect={true} />
+        </div>
+        <div className="absolute bottom-10 left-10" style={{ opacity: 0.15 }}>
+          <SchoolLogo size="xlarge" withShadow={true} floating={false} pulse={true} colorEffect={false} />
+        </div>
         
         {/* Animated glowing orbs - reduced for better performance */}
         <motion.div 
