@@ -9,6 +9,9 @@ interface SchoolLogoProps {
   floating?: boolean;
   pulse?: boolean;
   colorEffect?: boolean;
+  rotationSpeed?: "slow" | "medium" | "fast";
+  intensity?: "low" | "medium" | "high";
+  continuous?: boolean;
 }
 
 export default function SchoolLogo({ 
@@ -18,10 +21,14 @@ export default function SchoolLogo({
   withShadow = false,
   floating = false,
   pulse = false,
-  colorEffect = false
+  colorEffect = false,
+  rotationSpeed = "medium",
+  intensity = "medium",
+  continuous = false
 }: SchoolLogoProps) {
   
   const [isVisible, setIsVisible] = useState(true);
+  const [effectPhase, setEffectPhase] = useState(0);
   
   // Define size classes based on the size prop
   const sizeClasses = {
@@ -31,50 +38,113 @@ export default function SchoolLogo({
     xlarge: "w-32 h-28"
   };
   
-  // Shadow style
+  // Define rotation speed factors
+  const rotationDuration = {
+    slow: 8,
+    medium: 5,
+    fast: 2
+  };
+  
+  // Define animation intensity levels
+  const intensityFactor = {
+    low: 0.5,
+    medium: 1,
+    high: 1.5
+  };
+  
+  // Shadow style with intensity factor
   const shadowStyle = withShadow ? {
-    filter: 'drop-shadow(0 0 12px rgba(38, 166, 154, 0.8))'
+    filter: `drop-shadow(0 0 ${12 * intensityFactor[intensity]}px rgba(38, 166, 154, 0.8))`
   } : {};
   
   // Animation config
   const hoverAnimation = animated ? {
-    scale: 1.1,
-    rotate: [0, -8, 8, 0],
-    transition: { duration: 0.5 }
+    scale: 1.1 * intensityFactor[intensity],
+    rotate: [0, -8 * intensityFactor[intensity], 8 * intensityFactor[intensity], 0],
+    transition: { duration: 0.5 / intensityFactor[intensity] }
   } : {};
   
-  // Floating animation
+  // Floating animation with customization
   const floatingAnimation = floating ? {
-    y: [0, -10, 0],
+    y: [0, -10 * intensityFactor[intensity], 0],
+    x: continuous ? [0, 5 * intensityFactor[intensity], 0, -5 * intensityFactor[intensity], 0] : [0],
     transition: {
-      duration: 3,
-      repeat: Infinity,
-      repeatType: "reverse" as const,
-      ease: "easeInOut"
+      y: {
+        duration: 3 / intensityFactor[intensity],
+        repeat: Infinity,
+        repeatType: "reverse" as const,
+        ease: "easeInOut"
+      },
+      x: {
+        duration: 7 / intensityFactor[intensity],
+        repeat: Infinity,
+        repeatType: "mirror" as const,
+        ease: "easeInOut"
+      }
     }
   } : {};
   
-  // Pulse animation
+  // Pulse animation with intensity
   const pulseAnimation = pulse ? {
-    scale: [1, 1.05, 1],
-    opacity: [1, 0.8, 1],
+    scale: [
+      1, 
+      1 + (0.05 * intensityFactor[intensity]), 
+      1
+    ],
+    opacity: [
+      1, 
+      Math.max(0.7, 1 - (0.2 * intensityFactor[intensity])), 
+      1
+    ],
     transition: {
-      duration: 2,
+      duration: 2 / intensityFactor[intensity],
       repeat: Infinity,
       repeatType: "reverse" as const
     }
   } : {};
   
-  // Color effect animation
+  // Continuous rotation animation if enabled
+  const continuousRotation = continuous ? {
+    rotate: 360,
+    transition: {
+      duration: rotationDuration[rotationSpeed] * 2,
+      repeat: Infinity,
+      ease: "linear"
+    }
+  } : {};
+  
+  // Dynamic 3D effect based on settings
+  const dynamic3DEffect = continuous ? {
+    rotateX: [0, 10 * intensityFactor[intensity], 0],
+    rotateY: [0, 15 * intensityFactor[intensity], 0],
+    transition: {
+      duration: rotationDuration[rotationSpeed],
+      repeat: Infinity,
+      repeatType: "reverse" as const
+    }
+  } : {};
+  
+  // Advanced color effect animation
   useEffect(() => {
     if (colorEffect) {
       const interval = setInterval(() => {
         setIsVisible(prev => !prev);
-      }, 3000);
+        setEffectPhase(prev => (prev + 1) % 3);
+      }, 2000 / intensityFactor[intensity]);
       
       return () => clearInterval(interval);
     }
-  }, [colorEffect]);
+  }, [colorEffect, intensity]);
+  
+  // Get color based on phase
+  const getColorByPhase = () => {
+    switch(effectPhase) {
+      case 0: return 'rgba(38, 166, 154, 0.8)'; // Teal
+      case 1: return 'rgba(64, 75, 186, 0.8)';  // Blue
+      case 2: return 'rgba(126, 87, 194, 0.8)'; // Purple
+      default: return 'rgba(38, 166, 154, 0.8)';
+    }
+  };
   
   return (
     <motion.div
@@ -83,21 +153,37 @@ export default function SchoolLogo({
         willChange: 'transform',
         transformStyle: 'preserve-3d',
         transformOrigin: 'center center',
+        perspective: '1000px'
       }}
       animate={{
         ...floatingAnimation,
-        ...pulseAnimation
+        ...pulseAnimation,
+        ...continuousRotation,
+        ...dynamic3DEffect
       }}
+      whileHover={animated ? {
+        scale: 1.2,
+        rotate: [0, -10, 10, -5, 5, 0],
+        transition: { duration: 0.7 }
+      } : {}}
     >
       <motion.img
         src="https://i.imgur.com/WzQYOFg.png"
         alt="Gjimnazi Abdulla Keta Logo"
         className={`${sizeClasses[size]} transition-all duration-500`}
         whileHover={hoverAnimation}
+        animate={continuous ? {
+          scale: [1, 1.1, 1],
+          transition: {
+            duration: rotationDuration[rotationSpeed] / 2,
+            repeat: Infinity,
+            repeatType: "reverse" as const
+          }
+        } : {}}
         style={{
           ...shadowStyle,
           filter: colorEffect ? 
-            `drop-shadow(0 0 12px ${isVisible ? 'rgba(38, 166, 154, 0.8)' : 'rgba(64, 75, 186, 0.8)'})`
+            `drop-shadow(0 0 ${12 * intensityFactor[intensity]}px ${getColorByPhase()})`
             : shadowStyle.filter || 'none',
         }}
       />

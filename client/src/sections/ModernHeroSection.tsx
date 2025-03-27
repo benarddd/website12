@@ -253,11 +253,41 @@ export default function ModernHeroSection() {
         />
         
         {/* School Logo Animation in Background */}
-        <div className="absolute top-10 right-10" style={{ opacity: 0.15 }}>
-          <SchoolLogo size="xlarge" withShadow={true} floating={true} pulse={false} colorEffect={true} />
+        <div className="absolute top-10 right-10" style={{ opacity: 0.2 }}>
+          <SchoolLogo 
+            size="xlarge" 
+            withShadow={true} 
+            floating={true} 
+            pulse={false} 
+            colorEffect={true} 
+            continuous={true}
+            rotationSpeed="slow"
+            intensity="high"
+          />
         </div>
-        <div className="absolute bottom-10 left-10" style={{ opacity: 0.15 }}>
-          <SchoolLogo size="xlarge" withShadow={true} floating={false} pulse={true} colorEffect={false} />
+        <div className="absolute bottom-10 left-10" style={{ opacity: 0.2 }}>
+          <SchoolLogo 
+            size="xlarge" 
+            withShadow={true} 
+            floating={true} 
+            pulse={true} 
+            colorEffect={true}
+            continuous={true}
+            rotationSpeed="medium"
+            intensity="medium"
+          />
+        </div>
+        <div className="absolute top-1/2 right-1/3 -translate-y-1/2" style={{ opacity: 0.15 }}>
+          <SchoolLogo 
+            size="large" 
+            withShadow={true} 
+            floating={true} 
+            pulse={true} 
+            colorEffect={false}
+            continuous={true}
+            rotationSpeed="fast"
+            intensity="high"
+          />
         </div>
         
         {/* Animated glowing orbs - reduced for better performance */}

@@ -112,6 +112,9 @@ export default function Header() {
                 animated={true}
                 pulse={isScrolled}
                 colorEffect={true}
+                continuous={true}
+                rotationSpeed={isScrolled ? "fast" : "medium"}
+                intensity={isScrolled ? "high" : "medium"}
               />
             </motion.div>
             <div className="hidden md:block">
