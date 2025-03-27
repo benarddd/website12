@@ -68,3 +68,16 @@ export const addNews = (newsItem: Omit<NewsItem, "id">): NewsItem => {
   news.push(newNewsItem);
   return newNewsItem;
 };
+
+// Helper function to delete news by ID
+export const deleteNews = (id: number): boolean => {
+  const initialLength = news.length;
+  const index = news.findIndex(item => item.id === id);
+  
+  if (index !== -1) {
+    news.splice(index, 1);
+    return news.length < initialLength;
+  }
+  
+  return false;
+};

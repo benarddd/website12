@@ -10,8 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { queryClient } from "@/lib/queryClient";
 import { Comment } from "@shared/schema";
-import { addNews, NewsItem } from "@/data/news";
-import { Upload, Image, Plus, X } from "lucide-react";
+import { addNews, deleteNews, NewsItem, news } from "@/data/news";
+import { Upload, Image, Plus, X, Trash2 } from "lucide-react";
 
 // Komponent për publikimin e lajmeve
 interface PublishNewsFormState {
@@ -350,12 +350,15 @@ const Admin = () => {
 
               {/* Tabs për seksionet e ndryshme */}
               <Tabs defaultValue="messages" value={activeTab} onValueChange={setActiveTab} className="w-full mb-6">
-                <TabsList className="grid grid-cols-2 bg-gray-800">
+                <TabsList className="grid grid-cols-3 bg-gray-800">
                   <TabsTrigger value="messages" className="data-[state=active]:bg-gray-700 data-[state=active]:text-teal-400">
                     Mesazhet
                   </TabsTrigger>
                   <TabsTrigger value="news" className="data-[state=active]:bg-gray-700 data-[state=active]:text-teal-400">
                     Publiko Lajme
+                  </TabsTrigger>
+                  <TabsTrigger value="manage-news" className="data-[state=active]:bg-gray-700 data-[state=active]:text-teal-400">
+                    Menaxho Lajmet
                   </TabsTrigger>
                 </TabsList>
                 
@@ -689,6 +692,90 @@ const Admin = () => {
                         {isSubmittingNews ? "Duke publikuar..." : "Publiko Lajmin"}
                       </Button>
                     </CardFooter>
+                  </Card>
+                </TabsContent>
+                
+                {/* Tab për menaxhimin e lajmeve */}
+                <TabsContent value="manage-news" className="mt-4">
+                  <Card className="bg-gray-800 border-gray-700 shadow-lg text-white">
+                    <CardHeader>
+                      <CardTitle className="text-teal-400">Menaxho Lajmet</CardTitle>
+                      <CardDescription className="text-gray-300">
+                        Këtu mund të shikoni dhe fshini lajmet e publikuara.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {news.length === 0 ? (
+                          <p className="text-center py-8 text-gray-300">
+                            Nuk ka asnjë lajm të publikuar ende.
+                          </p>
+                        ) : (
+                          <>
+                            <p className="text-gray-300 mb-2">
+                              Totali i lajmeve: <b>{news.length}</b>
+                            </p>
+                            <div className="grid gap-4">
+                              {news.map((item) => (
+                                <Card key={item.id} className="bg-gray-700 border-gray-600 shadow-md">
+                                  <div className="flex items-start p-4">
+                                    <div className="w-24 h-24 flex-shrink-0 mr-4 overflow-hidden rounded-md">
+                                      <img 
+                                        src={item.image} 
+                                        alt={item.title}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          (e.target as HTMLImageElement).src = `https://placehold.co/600x400/26a69a/ffffff?text=${encodeURIComponent(item.title.substring(0, 20))}`;
+                                        }}
+                                      />
+                                    </div>
+                                    <div className="flex-1">
+                                      <div className="flex items-center justify-between">
+                                        <h3 className="text-lg font-medium text-teal-400">{item.title}</h3>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                                          onClick={() => {
+                                            if (window.confirm('Jeni i sigurt që dëshironi të fshini këtë lajm?')) {
+                                              const success = deleteNews(item.id);
+                                              if (success) {
+                                                toast({
+                                                  title: "Lajmi u fshi me sukses",
+                                                  variant: "default"
+                                                });
+                                              } else {
+                                                toast({
+                                                  title: "Gabim në fshirjen e lajmit",
+                                                  description: "Ndodhi një problem gjatë fshirjes së lajmit",
+                                                  variant: "destructive"
+                                                });
+                                              }
+                                            }
+                                          }}
+                                        >
+                                          <Trash2 className="h-5 w-5" />
+                                        </Button>
+                                      </div>
+                                      <div className="flex items-center mt-1">
+                                        <Badge 
+                                          style={{ backgroundColor: item.categoryColor }} 
+                                          className="mr-2 text-white"
+                                        >
+                                          {item.category}
+                                        </Badge>
+                                        <span className="text-sm text-gray-300">{item.date}</span>
+                                      </div>
+                                      <p className="text-gray-300 mt-2 line-clamp-2">{item.description}</p>
+                                    </div>
+                                  </div>
+                                </Card>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </CardContent>
                   </Card>
                 </TabsContent>
               </Tabs>
