@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import LoadingSpinner from './LoadingSpinner';
-import { useScrollPosition } from '@/hooks/use-scroll-position';
 
 interface PageTransitionProps {
   children: React.ReactNode;
