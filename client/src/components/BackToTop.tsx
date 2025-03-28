@@ -1,10 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useScrollPosition } from "@/hooks/use-scroll-position";
 import { ChevronUp } from "lucide-react";
 
 export default function BackToTop() {
-  const { scrollPosition, scrollToTop } = useScrollPosition();
+  const [scrollPosition, setScrollPosition] = useState(0);
+  
+  // Handle scroll position directly
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollPosition(window.scrollY);
+    };
+    
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+  
+  // Scroll to top function
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  }, []);
   const showButton = scrollPosition > 300;
   
   return (

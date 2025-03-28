@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { useScrollPosition } from "@/hooks/use-scroll-position";
 import SchoolLogo from "./SchoolLogo";
 
 export default function Header() {
@@ -9,8 +8,18 @@ export default function Header() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [, setLocation] = useLocation();
-  const { scrollPosition } = useScrollPosition();
+  const [scrollPosition, setScrollPosition] = useState(0);
   const isScrolled = scrollPosition > 50;
+  
+  // Handle scroll position manually instead of using hook
+  useEffect(() => {
+    const handlePositionChange = () => {
+      setScrollPosition(window.scrollY);
+    };
+    
+    window.addEventListener('scroll', handlePositionChange, { passive: true });
+    return () => window.removeEventListener('scroll', handlePositionChange);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
