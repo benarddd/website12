@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/section-heading";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 // Book genre types
 type BookGenre = "all" | "fiction" | "nonfiction" | "textbook" | "science" | "literature" | "history" | "language";
@@ -167,9 +171,94 @@ const books: Book[] = [
 ];
 
 export default function DigitalLibrary() {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGenre, setSelectedGenre] = useState<BookGenre>("all");
   const [selectedFormat, setSelectedFormat] = useState<"ALL" | "PDF" | "EPUB" | "BOTH">("ALL");
+  
+  // Book request form state
+  const [bookRequestForm, setBookRequestForm] = useState({
+    bookTitle: "",
+    bookAuthor: "",
+    userEmail: "",
+    reason: "",
+    studentName: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  
+  // Handle book request form input change
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setBookRequestForm(prev => ({ ...prev, [name]: value }));
+  };
+  
+  // Handle book request form submission
+  const handleBookRequestSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate form
+    if (!bookRequestForm.bookTitle || !bookRequestForm.userEmail || !bookRequestForm.studentName) {
+      toast({
+        title: "Gabim në formë",
+        description: "Ju lutem plotësoni të gjitha fushat e kërkuara.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      
+      // Prepare message with book request details
+      const message = `Kërkesë për libër të ri: ${bookRequestForm.bookTitle}${bookRequestForm.bookAuthor ? ' nga ' + bookRequestForm.bookAuthor : ''}. Arsyeja: ${bookRequestForm.reason}`;
+      
+      // Create comment with book request details
+      const response = await fetch("/api/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: bookRequestForm.studentName,
+          email: bookRequestForm.userEmail,
+          subject: "Kërkesë për Libër të Ri - Biblioteka Dixhitale",
+          message: message
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        toast({
+          title: "Kërkesa u dërgua me sukses!",
+          description: "Kërkesa juaj për libër të ri u ruajt në databazë dhe do të shqyrtohet nga stafi i bibliotekës së shpejti.",
+          variant: "default"
+        });
+        
+        // Reset form
+        setBookRequestForm({
+          bookTitle: "",
+          bookAuthor: "",
+          userEmail: "",
+          reason: "",
+          studentName: ""
+        });
+        
+        setIsSuccess(true);
+        setTimeout(() => setIsSuccess(false), 5000);
+      } else {
+        throw new Error(result.message || "Diçka shkoi keq.");
+      }
+    } catch (error) {
+      console.error("Error submitting book request:", error);
+      toast({
+        title: "Gabim në dërgim",
+        description: error instanceof Error ? error.message : "Ndodhi një gabim gjatë dërgimit të kërkesës. Ju lutemi provoni përsëri.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
   // Filter books based on search term, genre, and format
   const filteredBooks = books.filter(book => {
@@ -471,44 +560,115 @@ export default function DigitalLibrary() {
                 
                 <div>
                   <h3 className="text-xl font-bold text-white mb-4">Kërkesë për Libër të Ri</h3>
-                  <form className="space-y-4">
-                    <div>
-                      <label htmlFor="bookTitle" className="block text-[#c0c0c0] text-sm font-medium mb-2">Titulli i Librit</label>
-                      <input 
-                        type="text" 
-                        id="bookTitle" 
-                        className="w-full bg-[#1e1e1e] border border-[#2d2d2d] rounded-md p-3 text-white focus:outline-none focus:ring-2 focus:ring-[#26a69a] focus:border-transparent" 
-                        placeholder="Shënoni titullin e saktë"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="bookAuthor" className="block text-[#c0c0c0] text-sm font-medium mb-2">Autori</label>
-                      <input 
-                        type="text" 
-                        id="bookAuthor" 
-                        className="w-full bg-[#1e1e1e] border border-[#2d2d2d] rounded-md p-3 text-white focus:outline-none focus:ring-2 focus:ring-[#26a69a] focus:border-transparent" 
-                        placeholder="Emri i autorit"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="reason" className="block text-[#c0c0c0] text-sm font-medium mb-2">Arsyeja e Kërkesës</label>
-                      <textarea 
-                        id="reason" 
-                        rows={3} 
-                        className="w-full bg-[#1e1e1e] border border-[#2d2d2d] rounded-md p-3 text-white focus:outline-none focus:ring-2 focus:ring-[#26a69a] focus:border-transparent" 
-                        placeholder="Pse keni nevojë për këtë libër?"
-                      ></textarea>
-                    </div>
-                    
-                    <button 
-                      type="submit" 
-                      className="px-5 py-2 bg-[#26a69a] text-white font-medium rounded-md hover:bg-opacity-90 transition-colors"
+                  
+                  {isSuccess ? (
+                    <motion.div 
+                      className="text-center py-8"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5 }}
                     >
-                      Dërgo Kërkesën
-                    </button>
-                  </form>
+                      <div className="mb-4 inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
+                        <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </div>
+                      <h3 className="text-xl font-bold text-white mb-2">Faleminderit për kërkesën!</h3>
+                      <p className="text-[#c0c0c0] mb-4">Kërkesa juaj për libër të ri u dërgua me sukses dhe do të shqyrtohet nga stafi i bibliotekës.</p>
+                      <Button 
+                        onClick={() => setIsSuccess(false)}
+                        className="bg-[#26a69a] hover:bg-[#2bbbad] text-white"
+                      >
+                        Dërgo një kërkesë tjetër
+                      </Button>
+                    </motion.div>
+                  ) : (
+                    <form className="space-y-4" onSubmit={handleBookRequestSubmit}>
+                      <div>
+                        <label htmlFor="studentName" className="block text-[#c0c0c0] text-sm font-medium mb-2">Emri juaj</label>
+                        <Input 
+                          type="text" 
+                          id="studentName" 
+                          name="studentName"
+                          value={bookRequestForm.studentName}
+                          onChange={handleInputChange}
+                          className="w-full bg-[#1e1e1e] border-[#2d2d2d] focus:border-[#26a69a] text-white" 
+                          placeholder="Emri dhe mbiemri juaj"
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="userEmail" className="block text-[#c0c0c0] text-sm font-medium mb-2">Email-i juaj</label>
+                        <Input 
+                          type="email" 
+                          id="userEmail" 
+                          name="userEmail"
+                          value={bookRequestForm.userEmail}
+                          onChange={handleInputChange}
+                          className="w-full bg-[#1e1e1e] border-[#2d2d2d] focus:border-[#26a69a] text-white" 
+                          placeholder="Adresa juaj e email-it"
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="bookTitle" className="block text-[#c0c0c0] text-sm font-medium mb-2">Titulli i Librit</label>
+                        <Input 
+                          type="text" 
+                          id="bookTitle" 
+                          name="bookTitle"
+                          value={bookRequestForm.bookTitle}
+                          onChange={handleInputChange}
+                          className="w-full bg-[#1e1e1e] border-[#2d2d2d] focus:border-[#26a69a] text-white" 
+                          placeholder="Shënoni titullin e saktë"
+                          required
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="bookAuthor" className="block text-[#c0c0c0] text-sm font-medium mb-2">Autori</label>
+                        <Input 
+                          type="text" 
+                          id="bookAuthor" 
+                          name="bookAuthor"
+                          value={bookRequestForm.bookAuthor}
+                          onChange={handleInputChange}
+                          className="w-full bg-[#1e1e1e] border-[#2d2d2d] focus:border-[#26a69a] text-white" 
+                          placeholder="Emri i autorit"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="reason" className="block text-[#c0c0c0] text-sm font-medium mb-2">Arsyeja e Kërkesës</label>
+                        <Textarea 
+                          id="reason" 
+                          name="reason"
+                          value={bookRequestForm.reason}
+                          onChange={handleInputChange}
+                          rows={3} 
+                          className="w-full bg-[#1e1e1e] border-[#2d2d2d] focus:border-[#26a69a] text-white" 
+                          placeholder="Pse keni nevojë për këtë libër?"
+                        />
+                      </div>
+                      
+                      <Button 
+                        type="submit" 
+                        disabled={isSubmitting}
+                        className="w-full md:w-auto bg-[#26a69a] hover:bg-[#2bbbad] text-white"
+                      >
+                        {isSubmitting ? (
+                          <span className="flex items-center">
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Duke dërguar...
+                          </span>
+                        ) : "Dërgo Kërkesën"}
+                      </Button>
+                    </form>
+                  )}
                 </div>
               </div>
             </motion.div>
