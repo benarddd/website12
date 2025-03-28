@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import LoadingSpinner from './LoadingSpinner';
+import { useScrollPosition } from '@/hooks/use-scroll-position';
 
 interface PageTransitionProps {
   children: React.ReactNode;
@@ -16,6 +17,12 @@ export default function PageTransition({ children }: PageTransitionProps) {
     // Kur ndryshon lokacioni, fillo animacionin e ngarkimit
     if (location !== prevLocation && prevLocation !== '') {
       setLoading(true);
+      
+      // Kthe scrollin në fillim të faqes
+      window.scrollTo({
+        top: 0,
+        behavior: "auto"
+      });
       
       // Simulimi i kohës së ngarkimit të përmbajtjes
       const timer = setTimeout(() => {

@@ -4,15 +4,8 @@ import { useScrollPosition } from "@/hooks/use-scroll-position";
 import { ChevronUp } from "lucide-react";
 
 export default function BackToTop() {
-  const scrollPosition = useScrollPosition();
+  const { scrollPosition, scrollToTop } = useScrollPosition();
   const showButton = scrollPosition > 300;
-  
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-  };
   
   return (
     <div className="relative">

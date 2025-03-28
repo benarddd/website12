@@ -9,7 +9,7 @@ export default function Header() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [, setLocation] = useLocation();
-  const scrollPosition = useScrollPosition();
+  const { scrollPosition } = useScrollPosition();
   const isScrolled = scrollPosition > 50;
 
   useEffect(() => {
