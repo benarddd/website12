@@ -91,6 +91,7 @@ export default function ContactFormSection() {
         transition: { duration: 0.5 }
       });
 
+      // Use the API request helper to send the message to the database
       const response = await fetch("/api/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -102,7 +103,7 @@ export default function ContactFormSection() {
       if (result.success) {
         toast({ 
           title: "Sukses!", 
-          description: "Mesazhi juaj u ruajt me sukses dhe do të shqyrtohet nga administratorët.", 
+          description: "Mesazhi juaj u dërgua me sukses dhe u ruajt në databazë. Stafi do ta shqyrtojë së shpejti.", 
           variant: "default" 
         });
         form.reset();

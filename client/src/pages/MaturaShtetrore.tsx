@@ -1,7 +1,82 @@
 import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/section-heading";
 
+import { useState } from "react";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input"; 
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+
 export default function MaturaShtetrore() {
+  const { toast } = useToast();
+  const [formState, setFormState] = useState({
+    name: "",
+    email: "",
+    subject: "Pyetje për Maturën Shtetërore",
+    message: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormState(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!formState.name || !formState.email || !formState.message) {
+      toast({
+        title: "Gabim në formë",
+        description: "Ju lutem plotësoni të gjitha fushat e kërkuara.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      
+      const response = await fetch("/api/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formState)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        toast({
+          title: "Mesazhi u dërgua me sukses!",
+          description: "Pyetja juaj për Maturën Shtetërore u ruajt në databazë dhe do të shqyrtohet nga stafi i shkollës së shpejti.",
+          variant: "default"
+        });
+        
+        setFormState({
+          name: "",
+          email: "",
+          subject: "Pyetje për Maturën Shtetërore",
+          message: ""
+        });
+        
+        setIsSuccess(true);
+        setTimeout(() => setIsSuccess(false), 5000);
+      } else {
+        throw new Error(result.message || "Diçka shkoi keq.");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast({
+        title: "Gabim në dërgim",
+        description: error instanceof Error ? error.message : "Ndodhi një gabim gjatë dërgimit të mesazhit. Ju lutemi provoni përsëri.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   const maturaSubjects = [
     {
       id: 1,
@@ -254,6 +329,126 @@ export default function MaturaShtetrore() {
                   </a>
                 </motion.div>
               ))}
+            </div>
+          </div>
+        </div>
+        {/* Sekcioni i pyetjeve për Maturën Shtetërore */}
+        <div className="container mx-auto px-4 md:px-6 py-16">
+          <div className="max-w-4xl mx-auto">
+            <SectionHeading 
+              title="Keni pyetje për Maturën?" 
+              subtitle="Dërgoni mesazhin tuaj dhe stafi ynë do t'ju kontaktojë së shpejti me informacion të detajuar"
+            />
+            
+            <div className="mt-8 bg-[#121212] rounded-xl p-8 shadow-lg">
+              {isSuccess ? (
+                <motion.div 
+                  className="text-center py-8"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="mb-4 inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
+                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Faleminderit për mesazhin!</h3>
+                  <p className="text-[#c0c0c0] mb-4">Pyetja juaj është dërguar me sukses dhe do të merret përgjigjje së shpejti.</p>
+                  <Button 
+                    onClick={() => setIsSuccess(false)}
+                    className="bg-[#26a69a] hover:bg-[#2bbbad] text-white"
+                  >
+                    Dërgo një pyetje tjetër
+                  </Button>
+                </motion.div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label htmlFor="name" className="text-white font-medium">Emri juaj</label>
+                      <Input 
+                        id="name"
+                        name="name"
+                        value={formState.name}
+                        onChange={handleInputChange}
+                        placeholder="Shkruani emrin tuaj"
+                        className="bg-[#1d1d1d] border-[#333] focus:border-[#26a69a] text-white"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label htmlFor="email" className="text-white font-medium">Email</label>
+                      <Input 
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formState.email}
+                        onChange={handleInputChange}
+                        placeholder="Shkruani email-in tuaj"
+                        className="bg-[#1d1d1d] border-[#333] focus:border-[#26a69a] text-white"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label htmlFor="subject" className="text-white font-medium">Tema</label>
+                    <Input 
+                      id="subject"
+                      name="subject"
+                      value={formState.subject}
+                      onChange={handleInputChange}
+                      placeholder="Tema e pyetjes"
+                      className="bg-[#1d1d1d] border-[#333] focus:border-[#26a69a] text-white"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label htmlFor="message" className="text-white font-medium">Mesazhi juaj</label>
+                    <Textarea 
+                      id="message"
+                      name="message"
+                      value={formState.message}
+                      onChange={handleInputChange}
+                      placeholder="Shkruani pyetjen ose kërkesën tuaj për informacion rreth Maturës Shtetërore"
+                      className="bg-[#1d1d1d] border-[#333] focus:border-[#26a69a] text-white min-h-[150px]"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Button 
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full md:w-auto bg-[#26a69a] hover:bg-[#2bbbad] text-white"
+                    >
+                      {isSubmitting ? (
+                        <span className="flex items-center">
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Duke dërguar...
+                        </span>
+                      ) : "Dërgo Pyetjen"}
+                    </Button>
+                  </div>
+                </form>
+              )}
+              
+              <div className="mt-6 p-4 bg-[#1d1d1d] rounded-lg border border-[#333] text-[#c0c0c0]">
+                <div className="flex items-start">
+                  <svg className="w-5 h-5 text-[#26a69a] mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <p className="text-sm">
+                    Të gjitha pyetjet dhe mesazhet tuaja ruhen në bazën e të dhënave të shkollës dhe monitorohen nga stafi ynë. Do të merrni një përgjigje në email brenda 2-3 ditëve të punës.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
