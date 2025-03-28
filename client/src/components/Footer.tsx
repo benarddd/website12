@@ -42,7 +42,7 @@ export default function Footer() {
               <li><a href="/programs/pisa-2025" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">PISA 2025</a></li>
               <li><a href="/clubs/art" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Klubi Art & Zeje</a></li>
               <li><a href="/clubs/debate" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Klubi i Debatit</a></li>
-              <li><a href="#" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Rrespektimi i Diversitetit</a></li>
+              <li><a href="/diversity" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Respektimi i Diversitetit</a></li>
               <li><a href="/library/digital-library" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Libraria Dixhitale</a></li>
             </ul>
           </div>

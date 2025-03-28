@@ -30,6 +30,7 @@ const MaturaShtetrore = lazy(() => import("./pages/matura/MaturaShtetrore"));
 const DigitalLibrary = lazy(() => import("./pages/library/DigitalLibrary"));
 const Laboratories = lazy(() => import("./pages/laboratories/Laboratories"));
 const Counseling = lazy(() => import("./pages/counseling/Counseling"));
+const Diversity = lazy(() => import("./pages/diversity/Diversity"));
 const Admin = lazy(() => import("./pages/Admin"));
 
 function AppRouter() {
@@ -53,6 +54,7 @@ function AppRouter() {
           <Route path="/clubs/science" component={ScienceClub} />
           <Route path="/clubs/art" component={ArtClub} />
           <Route path="/clubs/debate" component={DebateClub} />
+          <Route path="/diversity" component={Diversity} />
           <Route path="/privacy-policy" component={lazy(() => import("./pages/legal/PrivacyPolicy"))} />
           <Route path="/terms" component={lazy(() => import("./pages/legal/Terms"))} />
           <Route component={NotFound} />
