@@ -1,10 +1,16 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { apiRequest } from "@/lib/queryClient";
+import { useMutation } from "@tanstack/react-query";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 // Book genre types
 type BookGenre = "all" | "fiction" | "nonfiction" | "textbook" | "science" | "literature" | "history" | "language" | "encyclopedia" | "art" | "poetry" | "classics" | "philosophy";
@@ -189,88 +195,127 @@ export default function DigitalLibrary() {
   const [selectedGenre, setSelectedGenre] = useState<BookGenre>("all");
   const [selectedFormat, setSelectedFormat] = useState<"ALL" | "PDF" | "EPUB" | "BOTH">("ALL");
   
-  // Book request form state
-  const [bookRequestForm, setBookRequestForm] = useState({
-    bookTitle: "",
-    bookAuthor: "",
-    userEmail: "",
-    reason: "",
-    studentName: ""
+  // Create a request validation schema with Zod
+  const bookRequestSchema = z.object({
+    bookTitle: z.string().min(2, { message: "Titulli duhet të ketë të paktën 2 karaktere" }),
+    bookAuthor: z.string().optional(),
+    userEmail: z.string().email({ message: "Ju lutem vendosni një adresë emaili të vlefshme" }),
+    reason: z.string().optional(),
+    studentName: z.string().min(2, { message: "Emri duhet të ketë të paktën 2 karaktere" })
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Type inference from the schema
+  type BookRequestFormValues = z.infer<typeof bookRequestSchema>;
+
+  // Honeypot field to prevent spam bots (hidden field)
+  const [honeypot, setHoneypot] = useState("");
+  // Track submission attempts to prevent brute force
+  const [submitAttempts, setSubmitAttempts] = useState(0);
+  // Reference for form reset
+  const formRef = useRef<HTMLFormElement>(null);
+  // Success state
   const [isSuccess, setIsSuccess] = useState(false);
   
-  // Handle book request form input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setBookRequestForm(prev => ({ ...prev, [name]: value }));
-  };
-  
-  // Handle book request form submission
-  const handleBookRequestSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validate form
-    if (!bookRequestForm.bookTitle || !bookRequestForm.userEmail || !bookRequestForm.studentName) {
-      toast({
-        title: "Gabim në formë",
-        description: "Ju lutem plotësoni të gjitha fushat e kërkuara.",
-        variant: "destructive"
-      });
-      return;
+  // Setup form with React Hook Form
+  const form = useForm<BookRequestFormValues>({
+    resolver: zodResolver(bookRequestSchema),
+    defaultValues: {
+      bookTitle: "",
+      bookAuthor: "",
+      userEmail: "",
+      reason: "",
+      studentName: ""
     }
-    
-    try {
-      setIsSubmitting(true);
+  });
+  
+  // Configure API request mutation
+  const bookRequestMutation = useMutation({
+    mutationFn: async (values: BookRequestFormValues) => {
+      // Check honeypot (if filled, it's likely a bot)
+      if (honeypot) {
+        console.log("Potential spam bot detected");
+        // Simulate success to the bot but don't actually submit
+        return { success: true };
+      }
+      
+      // Check submission attempts (prevent brute force)
+      if (submitAttempts > 5) {
+        throw new Error("Numër i madh i tentimeve për dërgim. Ju lutemi provoni përsëri më vonë.");
+      }
       
       // Prepare message with book request details
-      const message = `Kërkesë për libër të ri: ${bookRequestForm.bookTitle}${bookRequestForm.bookAuthor ? ' nga ' + bookRequestForm.bookAuthor : ''}. Arsyeja: ${bookRequestForm.reason}`;
+      const message = `Kërkesë për libër të ri: ${values.bookTitle}${values.bookAuthor ? ' nga ' + values.bookAuthor : ''}. Arsyeja: ${values.reason || 'N/A'}`;
       
-      // Create comment with book request details
-      const response = await fetch("/api/comments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: bookRequestForm.studentName,
-          email: bookRequestForm.userEmail,
-          subject: "Kërkesë për Libër të Ri - Biblioteka Dixhitale",
-          message: message
-        })
+      // Make the secure API request using our utility
+      const response = await apiRequest("POST", "/api/comments", {
+        name: values.studentName,
+        email: values.userEmail,
+        subject: "Kërkesë për Libër të Ri - Biblioteka Dixhitale",
+        message: message
       });
       
-      const result = await response.json();
+      return response.json();
+    },
+    onSuccess: () => {
+      // Show success toast
+      toast({
+        title: "Kërkesa u dërgua me sukses!",
+        description: "Kërkesa juaj për libër të ri u ruajt në mënyrë të sigurt dhe do të shqyrtohet nga stafi i bibliotekës së shpejti.",
+        variant: "default"
+      });
       
-      if (result.success) {
-        toast({
-          title: "Kërkesa u dërgua me sukses!",
-          description: "Kërkesa juaj për libër të ri u ruajt në databazë dhe do të shqyrtohet nga stafi i bibliotekës së shpejti.",
-          variant: "default"
-        });
-        
-        // Reset form
-        setBookRequestForm({
-          bookTitle: "",
-          bookAuthor: "",
-          userEmail: "",
-          reason: "",
-          studentName: ""
-        });
-        
-        setIsSuccess(true);
-        setTimeout(() => setIsSuccess(false), 5000);
-      } else {
-        throw new Error(result.message || "Diçka shkoi keq.");
-      }
-    } catch (error) {
-      console.error("Error submitting book request:", error);
+      // Reset form
+      form.reset();
+      // Update UI to show success state
+      setIsSuccess(true);
+      setTimeout(() => setIsSuccess(false), 5000);
+      // Reset submit attempts
+      setSubmitAttempts(0);
+    },
+    onError: (error: Error) => {
+      // Increment submit attempts counter
+      setSubmitAttempts(prev => prev + 1);
+      
+      // Show error toast with sanitized message
       toast({
         title: "Gabim në dërgim",
-        description: error instanceof Error ? error.message : "Ndodhi një gabim gjatë dërgimit të kërkesës. Ju lutemi provoni përsëri.",
+        description: error.message || "Ndodhi një gabim gjatë dërgimit të kërkesës. Ju lutemi provoni përsëri.",
         variant: "destructive"
       });
-    } finally {
-      setIsSubmitting(false);
     }
+  });
+  
+  // Reset form when unmounted to prevent stale data
+  useEffect(() => {
+    return () => {
+      form.reset();
+      setSubmitAttempts(0);
+      setHoneypot("");
+    };
+  }, [form]);
+
+  // Handle book request form submission
+  const handleBookRequestSubmit = (values: BookRequestFormValues) => {
+    // CSP and XSS protection - sanitize and validate input
+    const sanitizedValues = Object.fromEntries(
+      Object.entries(values).map(([key, value]) => {
+        // Simple sanitization for string values
+        if (typeof value === 'string') {
+          // Convert angle brackets to HTML entities to prevent script injection
+          return [key, value
+            .trim()
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+          ];
+        }
+        return [key, value];
+      })
+    ) as BookRequestFormValues;
+
+    // Security timeout - prevent rapid-fire submissions
+    setTimeout(() => {
+      bookRequestMutation.mutate(sanitizedValues);
+    }, 100);
   };
   
   // Filter books based on search term, genre, and format
@@ -603,91 +648,138 @@ export default function DigitalLibrary() {
                       </Button>
                     </motion.div>
                   ) : (
-                    <form className="space-y-4" onSubmit={handleBookRequestSubmit}>
-                      <div>
-                        <label htmlFor="studentName" className="block text-[#c0c0c0] text-sm font-medium mb-2">Emri juaj</label>
-                        <Input 
-                          type="text" 
-                          id="studentName" 
-                          name="studentName"
-                          value={bookRequestForm.studentName}
-                          onChange={handleInputChange}
-                          className="w-full bg-[#1e1e1e] border-[#2d2d2d] focus:border-[#26a69a] text-white" 
-                          placeholder="Emri dhe mbiemri juaj"
-                          required
-                        />
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="userEmail" className="block text-[#c0c0c0] text-sm font-medium mb-2">Email-i juaj</label>
-                        <Input 
-                          type="email" 
-                          id="userEmail" 
-                          name="userEmail"
-                          value={bookRequestForm.userEmail}
-                          onChange={handleInputChange}
-                          className="w-full bg-[#1e1e1e] border-[#2d2d2d] focus:border-[#26a69a] text-white" 
-                          placeholder="Adresa juaj e email-it"
-                          required
-                        />
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="bookTitle" className="block text-[#c0c0c0] text-sm font-medium mb-2">Titulli i Librit</label>
-                        <Input 
-                          type="text" 
-                          id="bookTitle" 
-                          name="bookTitle"
-                          value={bookRequestForm.bookTitle}
-                          onChange={handleInputChange}
-                          className="w-full bg-[#1e1e1e] border-[#2d2d2d] focus:border-[#26a69a] text-white" 
-                          placeholder="Shënoni titullin e saktë"
-                          required
-                        />
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="bookAuthor" className="block text-[#c0c0c0] text-sm font-medium mb-2">Autori</label>
-                        <Input 
-                          type="text" 
-                          id="bookAuthor" 
-                          name="bookAuthor"
-                          value={bookRequestForm.bookAuthor}
-                          onChange={handleInputChange}
-                          className="w-full bg-[#1e1e1e] border-[#2d2d2d] focus:border-[#26a69a] text-white" 
-                          placeholder="Emri i autorit"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="reason" className="block text-[#c0c0c0] text-sm font-medium mb-2">Arsyeja e Kërkesës</label>
-                        <Textarea 
-                          id="reason" 
-                          name="reason"
-                          value={bookRequestForm.reason}
-                          onChange={handleInputChange}
-                          rows={3} 
-                          className="w-full bg-[#1e1e1e] border-[#2d2d2d] focus:border-[#26a69a] text-white" 
-                          placeholder="Pse keni nevojë për këtë libër?"
-                        />
-                      </div>
-                      
-                      <Button 
-                        type="submit" 
-                        disabled={isSubmitting}
-                        className="w-full md:w-auto bg-[#26a69a] hover:bg-[#2bbbad] text-white"
+                    <Form {...form}>
+                      <form 
+                        className="space-y-4" 
+                        ref={formRef} 
+                        onSubmit={form.handleSubmit(handleBookRequestSubmit)}
+                        autoComplete="off" // Prevent browser autocomplete
                       >
-                        {isSubmitting ? (
-                          <span className="flex items-center">
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Duke dërguar...
-                          </span>
-                        ) : "Dërgo Kërkesën"}
-                      </Button>
-                    </form>
+                        {/* Invisible honeypot field to trap bots */}
+                        <input 
+                          type="text" 
+                          id="website" 
+                          name="website" 
+                          value={honeypot} 
+                          onChange={(e) => setHoneypot(e.target.value)} 
+                          className="absolute -left-[9999px] top-0 h-0 w-0 opacity-0 overflow-hidden"
+                          tabIndex={-1}
+                          aria-hidden="true"
+                        />
+  
+                        <FormField
+                          control={form.control}
+                          name="studentName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-[#c0c0c0]">Emri juaj</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field}
+                                  type="text" 
+                                  className="bg-[#1e1e1e] border-[#2d2d2d] focus-visible:ring-[#26a69a] text-white" 
+                                  placeholder="Emri dhe mbiemri juaj"
+                                />
+                              </FormControl>
+                              <FormMessage className="text-red-500" />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="userEmail"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-[#c0c0c0]">Email-i juaj</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field}
+                                  type="email" 
+                                  className="bg-[#1e1e1e] border-[#2d2d2d] focus-visible:ring-[#26a69a] text-white" 
+                                  placeholder="Adresa juaj e email-it"
+                                />
+                              </FormControl>
+                              <FormMessage className="text-red-500" />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="bookTitle"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-[#c0c0c0]">Titulli i Librit</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field}
+                                  type="text" 
+                                  className="bg-[#1e1e1e] border-[#2d2d2d] focus-visible:ring-[#26a69a] text-white" 
+                                  placeholder="Shënoni titullin e saktë"
+                                />
+                              </FormControl>
+                              <FormMessage className="text-red-500" />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="bookAuthor"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-[#c0c0c0]">Autori</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  {...field}
+                                  type="text" 
+                                  className="bg-[#1e1e1e] border-[#2d2d2d] focus-visible:ring-[#26a69a] text-white" 
+                                  placeholder="Emri i autorit"
+                                />
+                              </FormControl>
+                              <FormMessage className="text-red-500" />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="reason"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-[#c0c0c0]">Arsyeja e Kërkesës</FormLabel>
+                              <FormControl>
+                                <Textarea 
+                                  {...field}
+                                  rows={3} 
+                                  className="bg-[#1e1e1e] border-[#2d2d2d] focus-visible:ring-[#26a69a] text-white" 
+                                  placeholder="Pse keni nevojë për këtë libër?"
+                                />
+                              </FormControl>
+                              <FormMessage className="text-red-500" />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <Button 
+                          type="submit" 
+                          disabled={bookRequestMutation.isPending}
+                          className="w-full md:w-auto bg-[#26a69a] hover:bg-[#2bbbad] text-white"
+                          aria-label="Dërgo kërkesën për libër të ri"
+                        >
+                          {bookRequestMutation.isPending ? (
+                            <span className="flex items-center">
+                              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Duke dërguar...
+                            </span>
+                          ) : "Dërgo Kërkesën"}
+                        </Button>
+                      </form>
+                    </Form>
                   )}
                 </div>
               </div>
