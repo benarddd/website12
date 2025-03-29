@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
 // Book genre types
-type BookGenre = "all" | "fiction" | "nonfiction" | "textbook" | "science" | "literature" | "history" | "language";
+type BookGenre = "all" | "fiction" | "nonfiction" | "textbook" | "science" | "literature" | "history" | "language" | "encyclopedia" | "art" | "poetry" | "classics" | "philosophy";
 
 // Book interface
 interface Book {
@@ -21,152 +21,165 @@ interface Book {
   format: "PDF" | "EPUB" | "BOTH";
   language: string;
   pages: number;
+  readLink?: string;  // Link për lexim online
 }
 
 const books: Book[] = [
   {
     id: 1,
-    title: "Historia e Shqipërisë",
-    author: "Kristo Frashëri",
-    cover: "https://images.unsplash.com/photo-1589998059171-988d887df646?q=80&w=400&h=600&auto=format&fit=crop",
-    genre: ["textbook", "history"],
-    description: "Një përmbledhje e historisë së Shqipërisë nga periudha ilire deri në ditët e sotme.",
-    year: 2018,
-    format: "PDF",
+    title: "Vepra Letrare të Ismail Kadare",
+    author: "Ismail Kadare",
+    cover: "https://images.unsplash.com/photo-1581795669633-91ef7c9699a8?q=80&w=400&h=600&auto=format&fit=crop",
+    genre: ["literature", "classics", "fiction"],
+    description: "Përmbledhje e veprave kryesore të shkrimtarit të madh shqiptar, përfshirë Pallatin e Ëndrrave, Kronikë në Gur, dhe Prilli i Thyer.",
+    year: 2015,
+    format: "BOTH",
     language: "Shqip",
-    pages: 382
+    pages: 1200,
+    readLink: "https://gutenberg.org"
   },
   {
     id: 2,
-    title: "Fizika e Klasës së 11-të",
-    author: "Min. e Arsimit",
-    cover: "https://images.unsplash.com/photo-1614728263952-84ea256f9679?q=80&w=400&h=600&auto=format&fit=crop",
-    genre: ["textbook", "science"],
-    description: "Libri zyrtar i fizikës për klasën e 11-të me të gjitha konceptet themelore.",
-    year: 2022,
-    format: "PDF",
-    language: "Shqip",
-    pages: 210
-  },
-  {
-    id: 3,
-    title: "Kështjella",
-    author: "Ismail Kadare",
-    cover: "https://images.unsplash.com/photo-1581795669633-91ef7c9699a8?q=80&w=400&h=600&auto=format&fit=crop",
-    genre: ["fiction", "literature"],
-    description: "Roman historik që përshkruan qëndresën shqiptare kundër pushtimit otoman.",
-    year: 1970,
-    format: "BOTH",
-    language: "Shqip",
-    pages: 248
-  },
-  {
-    id: 4,
-    title: "Princesha e Martuar",
-    author: "William Goldman",
-    cover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=400&h=600&auto=format&fit=crop",
-    genre: ["fiction"],
-    description: "Një roman aventuresh që përzien fantazinë, romanticizmin dhe humorin.",
-    year: 1973,
-    format: "EPUB",
-    language: "Anglisht",
-    pages: 320
-  },
-  {
-    id: 5,
-    title: "Biologjia Molekulare",
-    author: "James D. Watson",
-    cover: "https://images.unsplash.com/photo-1530026186672-2cd00ffc50fe?q=80&w=400&h=600&auto=format&fit=crop",
-    genre: ["textbook", "science"],
-    description: "Një hyrje moderne në biologjinë molekulare dhe gjenetikën.",
-    year: 2020,
-    format: "PDF",
-    language: "Anglisht",
-    pages: 450
-  },
-  {
-    id: 6,
-    title: "Gramatika e Gjuhës Shqipe",
-    author: "Akademia e Shkencave",
-    cover: "https://images.unsplash.com/photo-1544947892-21e54adb4681?q=80&w=400&h=600&auto=format&fit=crop",
-    genre: ["textbook", "language"],
-    description: "Gramatika zyrtare e gjuhës shqipe me rregullat e sintaksës dhe morfologjisë.",
-    year: 2019,
-    format: "PDF",
-    language: "Shqip",
-    pages: 320
-  },
-  {
-    id: 7,
-    title: "Sapiens: Një histori e shkurtër e njerëzimit",
-    author: "Yuval Noah Harari",
-    cover: "https://images.unsplash.com/photo-1597690160839-cb13c1844fb5?q=80&w=400&h=600&auto=format&fit=crop",
-    genre: ["nonfiction", "history"],
-    description: "Një vështrim provokues në historinë e njerëzimit nga hominidet e para deri në ditët tona.",
-    year: 2011,
-    format: "BOTH",
-    language: "Anglisht",
-    pages: 512
-  },
-  {
-    id: 8,
-    title: "Gjergj Kastrioti Skënderbeu",
-    author: "Fan Noli",
-    cover: "https://images.unsplash.com/photo-1594312915251-48db9280c8f1?q=80&w=400&h=600&auto=format&fit=crop",
-    genre: ["nonfiction", "history"],
-    description: "Biografia e heroit kombëtar shqiptar Gjergj Kastrioti Skënderbeu.",
-    year: 1947,
-    format: "PDF",
-    language: "Shqip",
-    pages: 280
-  },
-  {
-    id: 9,
-    title: "Matematika e Avancuar",
-    author: "Prof. Dr. Edmond Lulja",
-    cover: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?q=80&w=400&h=600&auto=format&fit=crop",
-    genre: ["textbook", "science"],
-    description: "Tekst për matematikën e avancuar me koncepte të analizës matematikore dhe algjebrës.",
+    title: "Enciklopedia Botërore e Artit",
+    author: "Fondacioni i Arteve Botërore",
+    cover: "https://images.unsplash.com/photo-1581579438747-104c53d03770?q=80&w=400&h=600&auto=format&fit=crop",
+    genre: ["encyclopedia", "art"],
+    description: "Prezantimi i detajuar i artit botëror nga prehistoria deri në shekullin XXI, me mbi 5000 imazhe dhe analiza.",
     year: 2021,
     format: "PDF",
     language: "Shqip",
-    pages: 380
+    pages: 850,
+    readLink: "https://encyclopedia.org"
+  },
+  {
+    id: 3,
+    title: "Përmbledhje Poetike Shqiptare",
+    author: "Autorë të Ndryshëm",
+    cover: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=400&h=600&auto=format&fit=crop",
+    genre: ["poetry", "literature"],
+    description: "Antologji e poezisë shqiptare, duke përfshirë veprat e De Radës, Naimit, Migjenit, Poradecit dhe poetëve bashkëkohorë.",
+    year: 2019,
+    format: "BOTH",
+    language: "Shqip",
+    pages: 420,
+    readLink: "https://poetryfoundation.org"
+  },
+  {
+    id: 4,
+    title: "Enciklopedia e Shkencës dhe Teknologjisë",
+    author: "Akademia e Shkencave",
+    cover: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=400&h=600&auto=format&fit=crop",
+    genre: ["encyclopedia", "science"],
+    description: "Enciklopedi gjithëpërfshirëse mbi zbulimet shkencore, teknologjinë dhe inovacionet në të gjitha fushat.",
+    year: 2023,
+    format: "PDF",
+    language: "Shqip",
+    pages: 1500,
+    readLink: "https://scienceencyclopedia.org"
+  },
+  {
+    id: 5,
+    title: "Kryeveprat e Letërsisë Botërore",
+    author: "Koleksion Autorësh",
+    cover: "https://images.unsplash.com/photo-1525354215162-c1fbcc0001b6?q=80&w=400&h=600&auto=format&fit=crop",
+    genre: ["classics", "literature"],
+    description: "Përmbledhje e kryeveprave të letërsisë botërore nga Homeri deri te laureatët modernë të Çmimit Nobel.",
+    year: 2018,
+    format: "BOTH",
+    language: "Shqip",
+    pages: 2200,
+    readLink: "https://worldliterature.org"
+  },
+  {
+    id: 6,
+    title: "Filozofia dhe Mendimi Njerëzor",
+    author: "Grup Autorësh",
+    cover: "https://images.unsplash.com/photo-1544947892-21e54adb4681?q=80&w=400&h=600&auto=format&fit=crop",
+    genre: ["philosophy", "nonfiction"],
+    description: "Analizë e thellë e shkollave filozofike dhe ndikimit të tyre në zhvillimin e shoqërisë njerëzore.",
+    year: 2020,
+    format: "PDF",
+    language: "Shqip",
+    pages: 560,
+    readLink: "https://philosophy.org"
+  },
+  {
+    id: 7,
+    title: "Historia e Artit Shqiptar",
+    author: "Ferid Hudhri",
+    cover: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=400&h=600&auto=format&fit=crop",
+    genre: ["art", "history"],
+    description: "Vështrim i gjerë i zhvillimit të artit shqiptar nga lashtësia deri në kohët moderne, me fokus në pikturë, skulpturë dhe arkitekturë.",
+    year: 2017,
+    format: "BOTH",
+    language: "Shqip",
+    pages: 380,
+    readLink: "https://albanianart.org"
+  },
+  {
+    id: 8,
+    title: "Atlasi i Historisë Botërore",
+    author: "Instituti Historik Ndërkombëtar",
+    cover: "https://images.unsplash.com/photo-1594312915251-48db9280c8f1?q=80&w=400&h=600&auto=format&fit=crop",
+    genre: ["encyclopedia", "history"],
+    description: "Një prezantim me harta dhe analiza të periudhave kryesore historike që formësuan civilizimin njerëzor.",
+    year: 2022,
+    format: "PDF",
+    language: "Shqip",
+    pages: 680,
+    readLink: "https://worldhistoryatlas.org"
+  },
+  {
+    id: 9,
+    title: "Krijimtaria Artistike në Shqipëri",
+    author: "Akademia e Arteve",
+    cover: "https://images.unsplash.com/photo-1605722625766-a4c989c747a4?q=80&w=400&h=600&auto=format&fit=crop",
+    genre: ["art", "literature"],
+    description: "Botim akademik që pasqyron zhvillimin e krijimtarisë artistike në Shqipëri përgjatë periudhave të ndryshme.",
+    year: 2021,
+    format: "PDF",
+    language: "Shqip",
+    pages: 320,
+    readLink: "https://academyofarts.org"
   },
   {
     id: 10,
-    title: "Poezi të Zgjedhura",
-    author: "Migjeni",
+    title: "Antologjia e Poezisë Moderne Evropiane",
+    author: "Redaktuar nga L. Starova",
     cover: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=400&h=600&auto=format&fit=crop",
-    genre: ["literature"],
-    description: "Përmbledhje e poezive të zgjedhura të autorit të famshëm shqiptar Migjeni.",
-    year: 1954,
+    genre: ["poetry", "literature"],
+    description: "Përmbledhje e poezisë moderne evropiane e përkthyer në shqip, me poetë nga Franca, Italia, Anglia dhe vende të tjera evropiane.",
+    year: 2019,
     format: "BOTH",
     language: "Shqip",
-    pages: 120
+    pages: 450,
+    readLink: "https://europeanpoetry.org"
   },
   {
     id: 11,
-    title: "Kemistria Organike",
-    author: "John McMurry",
-    cover: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?q=80&w=400&h=600&auto=format&fit=crop",
-    genre: ["textbook", "science"],
-    description: "Tekst universitar për kemistrinë organike me reakcione dhe mekanizma.",
-    year: 2018,
+    title: "Enciklopedia e Natyrës",
+    author: "Instituti i Shkencave Natyrore",
+    cover: "https://images.unsplash.com/photo-1530026186672-2cd00ffc50fe?q=80&w=400&h=600&auto=format&fit=crop",
+    genre: ["encyclopedia", "science"],
+    description: "Informacion i detajuar dhe ilustrime mbi florën, faunën, ekosisteme dhe fenomene natyrore të planetit tonë.",
+    year: 2023,
     format: "PDF",
-    language: "Anglisht",
-    pages: 520
+    language: "Shqip",
+    pages: 960,
+    readLink: "https://natureencyclopedia.org"
   },
   {
     id: 12,
-    title: "1984",
-    author: "George Orwell",
+    title: "Letërsia Klasike Greke dhe Romake",
+    author: "Grup Akademikësh",
     cover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=400&h=600&auto=format&fit=crop",
-    genre: ["fiction", "literature"],
-    description: "Roman distopik që përshkruan një shoqëri totalitare nën kontrollin e një regjimi diktatorial.",
-    year: 1949,
+    genre: ["classics", "literature"],
+    description: "Përkthime dhe analiza të veprave të Homerit, Sofokliut, Virgjilit, Ovidit dhe autorëve të tjerë klasikë.",
+    year: 2018,
     format: "BOTH",
-    language: "Anglisht",
-    pages: 328
+    language: "Shqip",
+    pages: 720,
+    readLink: "https://classicalliterature.org"
   }
 ];
 
@@ -371,10 +384,14 @@ export default function DigitalLibrary() {
                     <option value="all">Të gjithë zhanret</option>
                     <option value="fiction">Letërsi Artistike</option>
                     <option value="nonfiction">Jo-fiction</option>
-                    <option value="textbook">Tekste Shkollore</option>
-                    <option value="science">Shkencë</option>
                     <option value="literature">Letërsi</option>
+                    <option value="poetry">Poezi</option>
+                    <option value="classics">Klasikët</option>
+                    <option value="art">Art dhe Kulturë</option>
                     <option value="history">Histori</option>
+                    <option value="philosophy">Filozofi</option>
+                    <option value="science">Shkencë</option>
+                    <option value="encyclopedia">Enciklopedi</option>
                     <option value="language">Gjuhësi</option>
                   </select>
                 </div>
@@ -439,11 +456,14 @@ export default function DigitalLibrary() {
                       
                       <div className="flex justify-between items-center mt-auto">
                         <span className="text-[#c0c0c0] text-xs">{book.pages} faqe</span>
-                        <button 
-                          className="px-4 py-2 bg-[#2d2d2d] text-white text-sm rounded-md hover:bg-[#3d3d3d] transition-colors"
+                        <a 
+                          href={book.readLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-2 bg-[#26a69a] text-white text-sm rounded-md hover:bg-opacity-80 transition-colors"
                         >
-                          Lexo Tani
-                        </button>
+                          Lexo Online
+                        </a>
                       </div>
                     </div>
                   </motion.div>
