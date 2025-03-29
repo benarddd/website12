@@ -16,25 +16,37 @@ const __dirname = path.dirname(__filename);
 // Initialize Express app
 const app = express();
 
-// Security middleware - CSP and other HTTP headers
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"], // For development, consider tightening in production
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      connectSrc: ["'self'"],
-      frameSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
+// Security middleware - with relaxed CSP for development
+if (process.env.NODE_ENV === 'production') {
+  // Stricter CSP for production
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        imgSrc: ["'self'", "data:", "https:", "http:"], // Allow all images for now
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        connectSrc: ["'self'"],
+        frameSrc: ["'self'"],
+        objectSrc: ["'none'"],
+      },
     },
-  },
-  xssFilter: true,
-  noSniff: true,
-  referrerPolicy: { policy: 'same-origin' }
-}));
+    xssFilter: true,
+    noSniff: true,
+    referrerPolicy: { policy: 'same-origin' }
+  }));
+} else {
+  // Completely disable CSP in development to avoid breaking assets
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      xssFilter: true,
+      noSniff: true,
+      referrerPolicy: { policy: 'same-origin' }
+    })
+  );
+}
 
 // Rate limiting
 const apiLimiter = rateLimit({
