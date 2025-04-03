@@ -41,10 +41,6 @@ export default function Calendar() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
-  // State for events display
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  
   // Fetch calendar events from API
   const fetchEvents = async () => {
     setIsLoading(true);
