@@ -3,7 +3,9 @@ import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
 import * as schema from "@shared/schema";
 
+// Configure Neon database connection with WebSockets
 neonConfig.webSocketConstructor = ws;
+console.log("Database URL check: " + (process.env.DATABASE_URL ? "Present" : "Missing"));
 
 // Check for DATABASE_URL environment variable
 if (!process.env.DATABASE_URL) {

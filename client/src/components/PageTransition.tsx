@@ -13,19 +13,33 @@ export default function PageTransition({ children }: PageTransitionProps) {
   const [location] = useLocation();
   
   useEffect(() => {
-    // Kur ndryshon lokacioni, fillo animacionin e ngarkimit
+    // Always reset scroll position when mounting component
+    window.scrollTo({
+      top: 0,
+      behavior: "auto"
+    });
+  }, []);
+  
+  useEffect(() => {
+    // Kur ndryshon lokacioni, fillo animacionin e ngarkimit dhe reset scroll position
     if (location !== prevLocation && prevLocation !== '') {
       setLoading(true);
       
-      // Kthe scrollin në fillim të faqes
+      // Kthe scrollin në fillim të faqes - use immediate reset
       window.scrollTo({
         top: 0,
-        behavior: "auto"
+        behavior: "auto" // Use "auto" instead of "smooth" for immediate reset
       });
       
       // Simulimi i kohës së ngarkimit të përmbajtjes
       const timer = setTimeout(() => {
         setLoading(false);
+        
+        // Double-check that scroll is at top after loading
+        window.scrollTo({
+          top: 0,
+          behavior: "auto"
+        });
       }, 800); // Kohëzgjatja e animacionit të ngarkimit
       
       return () => clearTimeout(timer);

@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertCommentSchema } from "@shared/schema";
+import { insertCommentSchema, insertCalendarEventSchema, type InsertCalendarEvent } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { uploadRouter } from "./upload";
@@ -254,6 +254,240 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
     standardHeaders: true,
     legacyHeaders: false,
+  });
+
+  // Route to manage calendar events - protected with admin authentication
+  app.post("/api/calendar-events", adminLimiter, authenticateAdmin, async (req: Request, res: Response) => {
+    const requestId = crypto.randomBytes(8).toString('hex');
+    try {
+      const { title, description, eventType, eventDate } = req.body;
+      
+      if (!title || !description || !eventType || !eventDate) {
+        return res.status(400).json({
+          success: false,
+          message: "Të gjitha fushat janë të detyrueshme: title, description, eventType, eventDate"
+        });
+      }
+      
+      // Validate event type
+      const validTypes = ["holiday", "activity", "exam"];
+      if (!validTypes.includes(eventType)) {
+        return res.status(400).json({
+          success: false,
+          message: "Lloji i ngjarjes duhet të jetë një nga: holiday, activity, exam"
+        });
+      }
+      
+      // Format date correctly - accept ISO string format
+      let parsedDate;
+      try {
+        parsedDate = new Date(eventDate);
+        if (isNaN(parsedDate.getTime())) {
+          throw new Error("Invalid date");
+        }
+      } catch (error) {
+        return res.status(400).json({
+          success: false,
+          message: "Formati i datës është i pavlefshëm. Përdorni format ISO: YYYY-MM-DD"
+        });
+      }
+      
+      // Get user info for audit
+      const userInfo = (req as any).user ? (req as any).user.id : undefined;
+      
+      // Create the calendar event
+      const newEvent = await storage.createCalendarEvent({
+        title,
+        description,
+        eventType,
+        eventDate: parsedDate.toISOString(),
+        createdBy: userInfo
+      });
+      
+      console.log(`[${new Date().toISOString()}] [ReqID: ${requestId}] Calendar event created with ID: ${newEvent.id}`);
+      
+      res.status(201).json({
+        success: true,
+        message: "Ngjarja u krijua me sukses",
+        data: newEvent
+      });
+    } catch (error) {
+      console.error(`[${new Date().toISOString()}] [ReqID: ${requestId}] Error creating calendar event:`, error);
+      res.status(500).json({
+        success: false,
+        message: "Ndodhi një gabim gjatë krijimit të ngjarjes. Ju lutemi provoni përsëri.",
+        errorId: requestId
+      });
+    }
+  });
+  
+  // Get all calendar events - public access
+  app.get("/api/calendar-events", async (req: Request, res: Response) => {
+    try {
+      // Check for date range filters
+      let startDate: Date | undefined;
+      let endDate: Date | undefined;
+      
+      if (req.query.startDate) {
+        startDate = new Date(req.query.startDate as string);
+        if (isNaN(startDate.getTime())) {
+          return res.status(400).json({
+            success: false,
+            message: "Formati i datës së fillimit është i pavlefshëm"
+          });
+        }
+      }
+      
+      if (req.query.endDate) {
+        endDate = new Date(req.query.endDate as string);
+        if (isNaN(endDate.getTime())) {
+          return res.status(400).json({
+            success: false,
+            message: "Formati i datës së fundit është i pavlefshëm"
+          });
+        }
+      }
+      
+      let events;
+      if (startDate && endDate) {
+        events = await storage.getCalendarEventsByDateRange(startDate, endDate);
+      } else {
+        events = await storage.getAllCalendarEvents();
+      }
+      
+      res.status(200).json({
+        success: true,
+        data: events
+      });
+    } catch (error) {
+      console.error("Error fetching calendar events:", error);
+      res.status(500).json({
+        success: false,
+        message: "Ndodhi një gabim gjatë marrjes së ngjarjeve të kalendarit. Ju lutemi provoni përsëri."
+      });
+    }
+  });
+  
+  // Delete calendar event - admin only
+  app.delete("/api/calendar-events/:id", adminLimiter, authenticateAdmin, async (req: Request, res: Response) => {
+    const requestId = crypto.randomBytes(8).toString('hex');
+    try {
+      const eventId = parseInt(req.params.id);
+      
+      if (isNaN(eventId)) {
+        return res.status(400).json({
+          success: false,
+          message: "ID e ngjarjes duhet të jetë një numër"
+        });
+      }
+      
+      // Check if event exists
+      const event = await storage.getCalendarEvent(eventId);
+      if (!event) {
+        return res.status(404).json({
+          success: false,
+          message: "Ngjarja me këtë ID nuk u gjet"
+        });
+      }
+      
+      // Delete the event
+      const deleted = await storage.deleteCalendarEvent(eventId);
+      
+      if (deleted) {
+        console.log(`[${new Date().toISOString()}] [ReqID: ${requestId}] Calendar event deleted with ID: ${eventId}`);
+        res.status(200).json({
+          success: true,
+          message: "Ngjarja u fshi me sukses"
+        });
+      } else {
+        res.status(500).json({
+          success: false,
+          message: "Gabim në fshirjen e ngjarjes"
+        });
+      }
+    } catch (error) {
+      console.error(`[${new Date().toISOString()}] [ReqID: ${requestId}] Error deleting calendar event:`, error);
+      res.status(500).json({
+        success: false,
+        message: "Ndodhi një gabim gjatë fshirjes së ngjarjes. Ju lutemi provoni përsëri.",
+        errorId: requestId
+      });
+    }
+  });
+  
+  // Update calendar event - admin only
+  app.put("/api/calendar-events/:id", adminLimiter, authenticateAdmin, async (req: Request, res: Response) => {
+    const requestId = crypto.randomBytes(8).toString('hex');
+    try {
+      const eventId = parseInt(req.params.id);
+      
+      if (isNaN(eventId)) {
+        return res.status(400).json({
+          success: false,
+          message: "ID e ngjarjes duhet të jetë një numër"
+        });
+      }
+      
+      // Check if event exists
+      const event = await storage.getCalendarEvent(eventId);
+      if (!event) {
+        return res.status(404).json({
+          success: false,
+          message: "Ngjarja me këtë ID nuk u gjet"
+        });
+      }
+      
+      // Get update fields
+      const { title, description, eventType, eventDate } = req.body;
+      const updateData: Partial<InsertCalendarEvent> = {};
+      
+      if (title !== undefined) updateData.title = title;
+      if (description !== undefined) updateData.description = description;
+      if (eventType !== undefined) {
+        // Validate event type
+        const validTypes = ["holiday", "activity", "exam"];
+        if (!validTypes.includes(eventType)) {
+          return res.status(400).json({
+            success: false,
+            message: "Lloji i ngjarjes duhet të jetë një nga: holiday, activity, exam"
+          });
+        }
+        updateData.eventType = eventType;
+      }
+      
+      if (eventDate !== undefined) {
+        try {
+          const parsedDate = new Date(eventDate);
+          if (isNaN(parsedDate.getTime())) {
+            throw new Error("Invalid date");
+          }
+          updateData.eventDate = parsedDate.toISOString();
+        } catch (error) {
+          return res.status(400).json({
+            success: false,
+            message: "Formati i datës është i pavlefshëm. Përdorni format ISO: YYYY-MM-DD"
+          });
+        }
+      }
+      
+      // Update the event
+      const updatedEvent = await storage.updateCalendarEvent(eventId, updateData);
+      
+      console.log(`[${new Date().toISOString()}] [ReqID: ${requestId}] Calendar event updated with ID: ${eventId}`);
+      
+      res.status(200).json({
+        success: true,
+        message: "Ngjarja u përditësua me sukses",
+        data: updatedEvent
+      });
+    } catch (error) {
+      console.error(`[${new Date().toISOString()}] [ReqID: ${requestId}] Error updating calendar event:`, error);
+      res.status(500).json({
+        success: false,
+        message: "Ndodhi një gabim gjatë përditësimit të ngjarjes. Ju lutemi provoni përsëri.",
+        errorId: requestId
+      });
+    }
   });
 
   // Get all comments (for admin purposes) with enhanced security
