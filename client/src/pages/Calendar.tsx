@@ -41,19 +41,9 @@ export default function Calendar() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
-  // State for admin dialog
-  const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [adminPassword, setAdminPassword] = useState("");
-  
-  // State for event management
-  const [isAddEventDialogOpen, setIsAddEventDialogOpen] = useState(false);
-  const [newEvent, setNewEvent] = useState({
-    title: "",
-    description: "",
-    eventType: "activity",
-    eventDate: date ? date.toISOString().split("T")[0] : new Date().toISOString().split("T")[0]
-  });
+  // State for events display
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   // Fetch calendar events from API
   const fetchEvents = async () => {
@@ -255,15 +245,7 @@ export default function Calendar() {
             Shiko të gjitha aktivitetet, pushimet dhe ngjarjet shkollore për vitin akademik
           </p>
           
-          {/* Admin button */}
-          <Button 
-            onClick={() => setIsAdminDialogOpen(true)}
-            variant="outline"
-            className="border-gray-700 text-gray-400 hover:text-teal-400 hover:border-teal-500 transition-colors"
-            size="sm"
-          >
-            Administrim
-          </Button>
+          
         </motion.div>
         
         {/* Loading indicator */}
