@@ -46,26 +46,35 @@ export default function ModernHeroSection() {
   // Dynamic text reveal animation
   useEffect(() => {
     const sequence = async () => {
-      await titleControls.start({
-        y: 0,
-        opacity: 1,
-        transition: { duration: 1, ease: "easeOut" }
-      });
-      
-      await subtitleControls.start({
-        y: 0,
-        opacity: 1,
-        transition: { duration: 0.8, ease: "easeOut" }
-      });
-      
-      await buttonControls.start({
-        y: 0,
-        opacity: 1,
-        transition: { duration: 0.6, ease: "easeOut" }
-      });
+      try {
+        await titleControls.start({
+          y: 0,
+          opacity: 1,
+          transition: { duration: 1, ease: "easeOut" }
+        });
+        
+        await subtitleControls.start({
+          y: 0,
+          opacity: 1,
+          transition: { duration: 0.8, ease: "easeOut" }
+        });
+        
+        await buttonControls.start({
+          y: 0,
+          opacity: 1,
+          transition: { duration: 0.6, ease: "easeOut" }
+        });
+      } catch (error) {
+        console.error("Animation sequence error:", error);
+      }
     };
     
-    sequence();
+    // Small delay to ensure component is mounted
+    const timer = setTimeout(() => {
+      sequence();
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [titleControls, subtitleControls, buttonControls]);
   
   // Pre-generate random particle positions for better performance
