@@ -40,19 +40,29 @@ export default function Calendar() {
   const [events, setEvents] = useState<FormattedCalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Added authentication state
+  const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false); // Added dialog state
+  const [isAddEventDialogOpen, setIsAddEventDialogOpen] = useState(false); // Added dialog state
+  const [adminPassword, setAdminPassword] = useState(""); // Added password state
+  const [newEvent, setNewEvent] = useState({
+    title: "",
+    description: "",
+    eventType: "activity",
+    eventDate: new Date().toISOString().split("T")[0]
+  });
+
   // Fetch calendar events from API
   const fetchEvents = async () => {
     setIsLoading(true);
     try {
       const response = await fetch("/api/calendar-events");
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch calendar events");
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success && data.data) {
         // Format API events to match our UI format
         const formattedEvents: FormattedCalendarEvent[] = data.data.map((event: CalendarEvent) => ({
@@ -62,17 +72,17 @@ export default function Calendar() {
           type: event.eventType as "holiday" | "activity" | "exam",
           description: event.description
         }));
-        
+
         setEvents(formattedEvents);
       } else {
         throw new Error("Invalid data format from API");
       }
-      
+
       setErrorMessage(null);
     } catch (error) {
       console.error("Error fetching calendar events:", error);
       setErrorMessage("Gabim në marrjen e të dhënave të kalendarit. Duke përdorur të dhëna testuese.");
-      
+
       // Fallback to sample data if API fails
       const sampleEvents: FormattedCalendarEvent[] = [
         {
@@ -100,18 +110,18 @@ export default function Calendar() {
           description: "Ceremonia e diplomimit për klasat e 12-ta"
         }
       ];
-      
+
       setEvents(sampleEvents);
     } finally {
       setIsLoading(false);
     }
   };
-  
+
   // Initial data fetch
   useEffect(() => {
     fetchEvents();
   }, []);
-  
+
   // Update selected day events when date or events change
   useEffect(() => {
     if (date) {
@@ -125,7 +135,7 @@ export default function Calendar() {
       setSelectedDayEvents([]);
     }
   }, [date, events]);
-  
+
   // Reset new event date when selected date changes
   useEffect(() => {
     if (date) {
@@ -135,7 +145,7 @@ export default function Calendar() {
       }));
     }
   }, [date]);
-  
+
   // Function to get events for a specific date (used for highlighting dates with events)
   const getDayEvents = (day: Date) => {
     return events.filter(event => 
@@ -144,7 +154,7 @@ export default function Calendar() {
       event.date.getFullYear() === day.getFullYear()
     );
   };
-  
+
   // Admin login handler
   const handleAdminLogin = () => {
     if (adminPassword === "admin123") {
@@ -163,7 +173,7 @@ export default function Calendar() {
       });
     }
   };
-  
+
   // Event submission handler
   const handleAddEvent = async () => {
     try {
@@ -176,10 +186,10 @@ export default function Calendar() {
         });
         return;
       }
-      
+
       // Create auth header
       const basicAuth = btoa("admin:admin123");
-      
+
       // Submit the new event to API
       const response = await fetch("/api/calendar-events", {
         method: "POST",
@@ -189,20 +199,20 @@ export default function Calendar() {
         },
         body: JSON.stringify(newEvent),
       });
-      
+
       if (!response.ok) {
         throw new Error("Failed to create event");
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         toast({
           title: "Ngjarja u shtua me sukses",
           description: "Ngjarja e re tani është e disponueshme në kalendar.",
           variant: "default",
         });
-        
+
         // Reset form
         setNewEvent({
           title: "",
@@ -210,7 +220,7 @@ export default function Calendar() {
           eventType: "activity",
           eventDate: date ? date.toISOString().split("T")[0] : new Date().toISOString().split("T")[0]
         });
-        
+
         // Close dialog and refresh events
         setIsAddEventDialogOpen(false);
         fetchEvents();
@@ -226,7 +236,7 @@ export default function Calendar() {
       });
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-[#121212] pt-24 pb-16">
       <div className="container mx-auto px-4">
@@ -240,10 +250,10 @@ export default function Calendar() {
           <p className="text-gray-400 max-w-2xl mx-auto mb-6">
             Shiko të gjitha aktivitetet, pushimet dhe ngjarjet shkollore për vitin akademik
           </p>
-          
-          
+
+
         </motion.div>
-        
+
         {/* Loading indicator */}
         {isLoading && (
           <div className="flex justify-center items-center mb-8">
@@ -251,14 +261,14 @@ export default function Calendar() {
             <span className="ml-3 text-gray-400">Duke ngarkuar kalendarin...</span>
           </div>
         )}
-        
+
         {/* Error message */}
         {errorMessage && (
           <div className="bg-red-500/10 text-red-400 p-4 rounded-lg mb-8 text-center">
             {errorMessage}
           </div>
         )}
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
@@ -278,7 +288,7 @@ export default function Calendar() {
                 </Button>
               </div>
             )}
-            
+
             <CalendarUI
               mode="single"
               selected={date}
@@ -337,7 +347,7 @@ export default function Calendar() {
               }}
             />
           </motion.div>
-          
+
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -347,7 +357,7 @@ export default function Calendar() {
             <h2 className="text-xl font-bold text-white mb-4">
               {date ? date.toLocaleDateString('sq-AL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Zgjidhni një datë'}
             </h2>
-            
+
             {selectedDayEvents.length > 0 ? (
               <div className="space-y-4">
                 {selectedDayEvents.map((event, index) => (
@@ -376,7 +386,7 @@ export default function Calendar() {
                       </Badge>
                     </div>
                     <p className="text-gray-400 text-sm">{event.description}</p>
-                    
+
                     {/* Admin delete button */}
                     {isAuthenticated && event.id && (
                       <div className="mt-3 flex justify-end">
@@ -388,7 +398,7 @@ export default function Calendar() {
                             try {
                               // Create auth header
                               const basicAuth = btoa("admin:admin123");
-                              
+
                               // Delete the event
                               const response = await fetch(`/api/calendar-events/${event.id}`, {
                                 method: "DELETE",
@@ -396,20 +406,20 @@ export default function Calendar() {
                                   "Authorization": `Basic ${basicAuth}`
                                 },
                               });
-                              
+
                               if (!response.ok) {
                                 throw new Error("Failed to delete event");
                               }
-                              
+
                               const data = await response.json();
-                              
+
                               if (data.success) {
                                 toast({
                                   title: "Ngjarja u fshi me sukses",
                                   description: "Ngjarja u hoq nga kalendari.",
                                   variant: "default",
                                 });
-                                
+
                                 // Refresh events
                                 fetchEvents();
                               } else {
@@ -435,7 +445,7 @@ export default function Calendar() {
             ) : (
               <p className="text-gray-400 italic">Nuk ka ngjarje për datën e zgjedhur</p>
             )}
-            
+
             <div className="mt-6 pt-4 border-t border-[#333]">
               <h3 className="font-semibold text-white mb-3">Legjenda:</h3>
               <div className="space-y-2">
@@ -456,7 +466,7 @@ export default function Calendar() {
           </motion.div>
         </div>
       </div>
-      
+
       {/* Admin login dialog */}
       <Dialog open={isAdminDialogOpen} onOpenChange={setIsAdminDialogOpen}>
         <DialogContent className="sm:max-w-md bg-gray-800 border-gray-700 text-white">
@@ -466,13 +476,13 @@ export default function Calendar() {
               Ju lutem vendosni fjalëkalimin për të menaxhuar kalendarin e shkollës.
             </DialogDescription>
           </DialogHeader>
-          
+
           {isAuthenticated ? (
             <div className="space-y-4">
               <div className="rounded-md bg-teal-500/10 p-4 text-center text-teal-400">
                 Ju jeni autentifikuar si administrator.
               </div>
-              
+
               <div className="flex justify-between">
                 <Button
                   variant="outline"
@@ -481,7 +491,7 @@ export default function Calendar() {
                 >
                   Mbyll
                 </Button>
-                
+
                 <Button
                   variant="destructive"
                   onClick={() => {
@@ -513,7 +523,7 @@ export default function Calendar() {
                   }}
                 />
               </div>
-              
+
               <div className="flex justify-between">
                 <Button
                   variant="outline"
@@ -522,7 +532,7 @@ export default function Calendar() {
                 >
                   Anulo
                 </Button>
-                
+
                 <Button
                   className="bg-teal-600 hover:bg-teal-700 text-white"
                   onClick={handleAdminLogin}
@@ -534,7 +544,7 @@ export default function Calendar() {
           )}
         </DialogContent>
       </Dialog>
-      
+
       {/* Add event dialog */}
       <Dialog open={isAddEventDialogOpen} onOpenChange={setIsAddEventDialogOpen}>
         <DialogContent className="sm:max-w-md bg-gray-800 border-gray-700 text-white">
@@ -544,7 +554,7 @@ export default function Calendar() {
               Plotësoni detajet e ngjarjes së re për kalendarin shkollor.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <label htmlFor="title" className="text-sm font-medium text-gray-300">
@@ -558,7 +568,7 @@ export default function Calendar() {
                 className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
               />
             </div>
-            
+
             <div className="space-y-2">
               <label htmlFor="description" className="text-sm font-medium text-gray-300">
                 Përshkrimi
@@ -571,7 +581,7 @@ export default function Calendar() {
                 className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 min-h-24"
               />
             </div>
-            
+
             <div className="space-y-2">
               <label htmlFor="type" className="text-sm font-medium text-gray-300">
                 Lloji i Ngjarjes
@@ -590,7 +600,7 @@ export default function Calendar() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
               <label htmlFor="date" className="text-sm font-medium text-gray-300">
                 Data
@@ -604,14 +614,14 @@ export default function Calendar() {
               />
             </div>
           </div>
-          
+
           <DialogFooter className="sm:justify-between">
             <DialogClose asChild>
               <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
                 Anulo
               </Button>
             </DialogClose>
-            
+
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white"
               onClick={handleAddEvent}
