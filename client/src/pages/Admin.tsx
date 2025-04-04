@@ -12,6 +12,7 @@ import { queryClient } from "@/lib/queryClient";
 import { Comment } from "@shared/schema";
 import { addNews, deleteNews, NewsItem, news } from "@/data/news";
 import { Upload, Image, Plus, X, Trash2 } from "lucide-react";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@radix-ui/react-select'
 
 // Komponent për publikimin e lajmeve
 interface PublishNewsFormState {
@@ -743,8 +744,7 @@ const Admin = () => {
                                             if (window.confirm('Jeni i sigurt që dëshironi të fshini këtë lajm?')) {
                                               const success = deleteNews(item.id);
                                               if (success) {
-                                                toast({
-                                                  title: "Lajmi u fshi me sukses",
+                                                toast({                                                  title: "Lajmi u fshi me sukses",
                                                   variant: "default"
                                                 });
                                               } else {
@@ -818,11 +818,15 @@ const Admin = () => {
                             <label htmlFor="eventType" className="text-sm font-medium text-gray-300">
                               Lloji i Ngjarjes*
                             </label>
-                            <Select>
+                            <Select
+                              onValueChange={(value) => {
+                                // Handle value change
+                              }}
+                            >
                               <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
                                 <SelectValue placeholder="Zgjidhni llojin" />
                               </SelectTrigger>
-                              <SelectContent className="bg-gray-800 border-gray-700">
+                              <SelectContent>
                                 <SelectItem value="activity">Aktivitet</SelectItem>
                                 <SelectItem value="holiday">Pushim</SelectItem>
                                 <SelectItem value="exam">Provim</SelectItem>
