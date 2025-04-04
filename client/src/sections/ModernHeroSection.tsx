@@ -8,18 +8,18 @@ export default function ModernHeroSection() {
   const titleControls = useAnimation();
   const subtitleControls = useAnimation();
   const buttonControls = useAnimation();
-  
+
   // Setup scroll animations
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"]
   });
-  
+
   // Transform values based on scroll
   const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.8], [1, 0.9]);
-  
+
   // Floating animation for particles with more performant settings
   const floatingAnimation = {
     y: [0, -15, 0],
@@ -30,7 +30,7 @@ export default function ModernHeroSection() {
       ease: "easeInOut"
     }
   };
-  
+
   // Pulse animation for glow effects with more performant settings
   const pulseAnimation = {
     opacity: [0.4, 0.7, 0.4],
@@ -52,13 +52,13 @@ export default function ModernHeroSection() {
           opacity: 1,
           transition: { duration: 1, ease: "easeOut" }
         });
-        
+
         await subtitleControls.start({
           y: 0,
           opacity: 1,
           transition: { duration: 0.8, ease: "easeOut" }
         });
-        
+
         await buttonControls.start({
           y: 0,
           opacity: 1,
@@ -68,7 +68,7 @@ export default function ModernHeroSection() {
         console.error("Animation sequence error:", error);
       }
     };
-    
+
     // Small delay to ensure component is mounted
     const timer = setTimeout(() => {
       sequence();
@@ -76,7 +76,7 @@ export default function ModernHeroSection() {
 
     return () => clearTimeout(timer);
   }, [titleControls, subtitleControls, buttonControls]);
-  
+
   // Pre-generate random particle positions for better performance
   const particleStyles = useMemo(() => {
     return Array.from({ length: 20 }).map(() => ({
@@ -90,7 +90,7 @@ export default function ModernHeroSection() {
       yMove: Math.random() * 40 - 20
     }));
   }, []);
-  
+
   // Pre-generate dots for 3D effect to improve performance
   const dots3D = useMemo(() => {
     return Array.from({ length: 30 }).map((_, index) => ({
@@ -106,7 +106,7 @@ export default function ModernHeroSection() {
       scale: Math.random() * 0.6 + 0.5
     }));
   }, []);
-  
+
   // Pre-generate background gradients
   const gradients = useMemo(() => [
     'radial-gradient(circle at 0% 0%, rgba(38,166,154,0.15) 0%, rgba(10,10,10,0.95) 50%), linear-gradient(45deg, rgba(38,166,154,0.1) 0%, rgba(126,87,194,0.1) 100%)',
@@ -114,7 +114,7 @@ export default function ModernHeroSection() {
     'radial-gradient(circle at 100% 0%, rgba(38,166,154,0.15) 0%, rgba(10,10,10,0.95) 50%), linear-gradient(225deg, rgba(38,166,154,0.1) 0%, rgba(126,87,194,0.1) 100%)',
     'radial-gradient(circle at 0% 100%, rgba(126,87,194,0.15) 0%, rgba(10,10,10,0.95) 50%), linear-gradient(315deg, rgba(126,87,194,0.1) 0%, rgba(38,166,154,0.1) 100%)'
   ], []);
-  
+
   return (
     <section 
       ref={containerRef}
@@ -123,7 +123,7 @@ export default function ModernHeroSection() {
     >
       {/* Dynamic background with animated gradients and particles */}
       <div className="absolute inset-0 bg-black bg-opacity-50 z-10"></div>
-      
+
       {/* Animated gradient background */}
       <motion.div 
         className="absolute inset-0 z-0 bg-blend-overlay" 
@@ -174,7 +174,7 @@ export default function ModernHeroSection() {
             />
           ))}
         </motion.div>
-        
+
         {/* 3D perspective container - optimized animation */}
         <motion.div 
           className="absolute inset-0 overflow-hidden"
@@ -228,7 +228,7 @@ export default function ModernHeroSection() {
           </div>
         </motion.div>
       </motion.div>
-      
+
       {/* Animated particles and glow effects - reduced for better performance */}
       <div className="absolute inset-0 z-5 overflow-hidden">
         {/* SVG Particle effect */}
@@ -248,7 +248,7 @@ export default function ModernHeroSection() {
             loading="eager"
           />
         </motion.div>
-        
+
         {/* Animated floating particles - reduced count for performance */}
         <motion.div 
           className="absolute top-1/4 left-1/4 w-6 h-6 rounded-full bg-[#26a69a] bg-opacity-20 filter blur-md"
@@ -260,7 +260,7 @@ export default function ModernHeroSection() {
           animate={{...floatingAnimation, transition: {...floatingAnimation.transition, delay: 2}}}
           style={{ willChange: "transform" }}
         />
-        
+
         {/* School Logo Animation in Background */}
         <div className="absolute top-10 right-10" style={{ opacity: 0.15 }}>
           <SchoolLogo size="xlarge" withShadow={true} floating={true} pulse={false} colorEffect={true} />
@@ -268,7 +268,7 @@ export default function ModernHeroSection() {
         <div className="absolute bottom-10 left-10" style={{ opacity: 0.15 }}>
           <SchoolLogo size="xlarge" withShadow={true} floating={false} pulse={true} colorEffect={false} />
         </div>
-        
+
         {/* Animated glowing orbs - reduced for better performance */}
         <motion.div 
           className="absolute top-1/2 left-1/5 w-16 h-16 rounded-full bg-[#26a69a] bg-opacity-10 filter blur-xl"
@@ -276,13 +276,18 @@ export default function ModernHeroSection() {
           style={{ willChange: "transform, opacity" }}
         />
       </div>
-      
+
       {/* Main content */}
       <div className="container mx-auto px-4 relative z-20 h-full flex flex-col justify-center items-center text-center">
         <motion.div
           className="perspective-1000"
-          initial={{ y: 50, opacity: 0 }}
+          initial={{ y: 50, opacity: 0, scale: 0.95 }}
           animate={titleControls}
+          transition={{
+            duration: 0.8,
+            ease: [0.6, 0.05, -0.01, 0.9],
+            staggerChildren: 0.2
+          }}
           style={{ willChange: "transform, opacity" }}
         >
           <motion.h1 
@@ -332,7 +337,7 @@ export default function ModernHeroSection() {
             style={{ willChange: "transform, opacity" }}
           />
         </motion.div>
-        
+
         <motion.p 
           initial={{ y: 30, opacity: 0 }}
           animate={subtitleControls}
@@ -342,7 +347,7 @@ export default function ModernHeroSection() {
           <em>Një hap në teknologji, drejt një bote plot magji</em>
 
         </motion.p>
-        
+
         <motion.div
           initial={{ y: 30, opacity: 0 }}
           animate={buttonControls}
@@ -359,7 +364,7 @@ export default function ModernHeroSection() {
               Rreth Shkollës
             </motion.button>
           </Link>
-          
+
           <Link href="/sections">
             <motion.button 
               whileHover={{ scale: 1.05 }}
@@ -371,7 +376,7 @@ export default function ModernHeroSection() {
             </motion.button>
           </Link>
         </motion.div>
-        
+
         {/* Scroll indicator - simplified animation */}
         <motion.div 
           className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
