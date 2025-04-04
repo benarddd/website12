@@ -156,24 +156,6 @@ export default function Calendar() {
     );
   };
 
-  // Admin login handler
-  const handleAdminLogin = () => {
-    if (adminPassword === "admin123") {
-      setIsAuthenticated(true);
-      setAdminPassword("");
-      toast({
-        title: "Autentikimi u bë me sukses",
-        description: "Tani keni akses për të menaxhuar ngjarjet e kalendarit.",
-        variant: "default",
-      });
-    } else {
-      toast({
-        title: "Gabim autentikimi",
-        description: "Fjalëkalimi i dhënë nuk është i saktë. Ju lutemi provoni përsëri.",
-        variant: "destructive",
-      });
-    }
-  };
 
   // Event submission handler
   const handleAddEvent = async () => {
@@ -188,15 +170,11 @@ export default function Calendar() {
         return;
       }
 
-      // Create auth header
-      const basicAuth = btoa("admin:admin123");
-
       // Submit the new event to API
       const response = await fetch("/api/calendar-events", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Basic ${basicAuth}`
         },
         body: JSON.stringify(newEvent),
       });
@@ -284,8 +262,7 @@ export default function Calendar() {
   <button className="px-4 py-2 bg-amber-500 text-white rounded">Eventi Shkollor</button>
 </div>
 
-{isAuthenticated && (
-              <div className="flex justify-end mb-4">
+            <div className="flex justify-end mb-4">
                 <Button 
                   onClick={() => setIsAddEventDialogOpen(true)} 
                   size="sm"
@@ -294,7 +271,6 @@ export default function Calendar() {
                   <span>Shto Ngjarje</span>
                 </Button>
               </div>
-            )}
 
             <CalendarUI
               mode="single"
@@ -403,14 +379,11 @@ export default function Calendar() {
                           className="h-7 px-2 text-xs"
                           onClick={async () => {
                             try {
-                              // Create auth header
-                              const basicAuth = btoa("admin:admin123");
-
                               // Delete the event
                               const response = await fetch(`/api/calendar-events/${event.id}`, {
                                 method: "DELETE",
                                 headers: {
-                                  "Authorization": `Basic ${basicAuth}`
+
                                 },
                               });
 
@@ -474,83 +447,6 @@ export default function Calendar() {
         </div>
       </div>
 
-      {/* Admin login dialog */}
-      <Dialog open={isAdminDialogOpen} onOpenChange={setIsAdminDialogOpen}>
-        <DialogContent className="sm:max-w-md bg-gray-800 border-gray-700 text-white">
-          <DialogHeader>
-            <DialogTitle className="text-teal-400">Hyrje për Stafin</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              Ju lutem vendosni fjalëkalimin e stafit për të menaxhuar kalendarin e aktiviteteve shkollore.
-            </DialogDescription>
-          </DialogHeader>
-
-          {isAuthenticated ? (
-            <div className="space-y-4">
-              <div className="rounded-md bg-teal-500/10 p-4 text-center text-teal-400">
-                Ju jeni autentifikuar si administrator.
-              </div>
-
-              <div className="flex justify-between">
-                <Button
-                  variant="outline"
-                  className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                  onClick={() => setIsAdminDialogOpen(false)}
-                >
-                  Mbyll
-                </Button>
-
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    setIsAuthenticated(false);
-                    setIsAdminDialogOpen(false);
-                  }}
-                >
-                  Dilni
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-gray-300">
-                  Fjalëkalimi
-                </label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  placeholder="Vendosni fjalëkalimin"
-                  className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleAdminLogin();
-                    }
-                  }}
-                />
-              </div>
-
-              <div className="flex justify-between">
-                <Button
-                  variant="outline"
-                  className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                  onClick={() => setIsAdminDialogOpen(false)}
-                >
-                  Anulo
-                </Button>
-
-                <Button
-                  className="bg-teal-600 hover:bg-teal-700 text-white"
-                  onClick={handleAdminLogin}
-                >
-                  Kyçu
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
 
       {/* Add event dialog */}
       <Dialog open={isAddEventDialogOpen} onOpenChange={setIsAddEventDialogOpen}>

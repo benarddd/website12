@@ -781,9 +781,73 @@ const Admin = () => {
                     </CardContent>
                   </Card>
                 </TabsContent>
-                {/* Add Calendar Tab Content Here */}
                 <TabsContent value="calendar" className="mt-4">
-                  <p>Calendar Content will go here</p>
+                  <Card className="bg-gray-800 border-gray-700 shadow-lg text-white">
+                    <CardHeader>
+                      <CardTitle className="text-teal-400">Menaxho Kalendarin</CardTitle>
+                      <CardDescription className="text-gray-300">
+                        Këtu mund të shtoni dhe menaxhoni ngjarjet në kalendarin shkollor.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="grid gap-4">
+                          <div className="space-y-2">
+                            <label htmlFor="eventTitle" className="text-sm font-medium text-gray-300">
+                              Titulli i Ngjarjes*
+                            </label>
+                            <Input
+                              id="eventTitle"
+                              placeholder="p.sh. Mbledhje e Stafit"
+                              className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <label htmlFor="eventDescription" className="text-sm font-medium text-gray-300">
+                              Përshkrimi*
+                            </label>
+                            <Textarea
+                              id="eventDescription"
+                              placeholder="Përshkrimi i detajuar i ngjarjes"
+                              className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <label htmlFor="eventType" className="text-sm font-medium text-gray-300">
+                              Lloji i Ngjarjes*
+                            </label>
+                            <Select>
+                              <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                                <SelectValue placeholder="Zgjidhni llojin" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-gray-800 border-gray-700">
+                                <SelectItem value="activity">Aktivitet</SelectItem>
+                                <SelectItem value="holiday">Pushim</SelectItem>
+                                <SelectItem value="exam">Provim</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label htmlFor="eventDate" className="text-sm font-medium text-gray-300">
+                              Data*
+                            </label>
+                            <Input
+                              id="eventDate"
+                              type="date"
+                              className="bg-gray-700 border-gray-600 text-white"
+                            />
+                          </div>
+
+                          <Button className="bg-teal-600 hover:bg-teal-700 text-white mt-4">
+                            Shto Ngjarjen
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </TabsContent>
               </Tabs>
             </>
