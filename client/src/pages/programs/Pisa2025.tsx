@@ -1,9 +1,16 @@
 
 import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function Pisa2025() {
+  const objectives = [
+    { title: "Matematikë", icon: "📐", desc: "Vlerësimi i aftësive analitike dhe zgjidhja e problemeve" },
+    { title: "Shkencë", icon: "🔬", desc: "Matja e kompetencave shkencore dhe metodologjike" },
+    { title: "Lexim", icon: "📚", desc: "Vlerësimi i aftësive të të kuptuarit dhe analizës" }
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
       <div className="container mx-auto px-4 py-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -11,61 +18,107 @@ export default function Pisa2025() {
           transition={{ duration: 0.5 }}
           className="max-w-4xl mx-auto"
         >
-          <h1 className="text-4xl font-bold mb-8 text-gray-900">PISA 2025</h1>
-          
-          <div className="prose max-w-none">
-            <p className="text-lg mb-6 text-gray-700">
+          {/* Header Section */}
+          <div className="text-center mb-16">
+            <motion.h1 
+              className="text-5xl font-bold text-white mb-6"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              PISA 2025
+            </motion.h1>
+            <motion.div 
+              className="w-24 h-1 bg-teal-500 mx-auto mb-8"
+              initial={{ width: 0 }}
+              animate={{ width: 96 }}
+              transition={{ delay: 0.4 }}
+            />
+          </div>
+
+          {/* Main Content */}
+          <motion.div 
+            className="bg-gray-800 rounded-2xl p-8 shadow-xl mb-12 border border-gray-700"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <p className="text-lg text-gray-300 leading-relaxed">
               PISA 2025 është një vlerësim ndërkombëtar që mat aftësitë e nxënësve
               15-vjeçarë në matematikë, shkencë dhe lexim. Me keqardhje të thellë njoftojmë se gjimnazi "Abdulla Keta" nuk u përzgjodh për të marrë pjesë në testimin 
-              ndërkombëtar PISA këtë vit. 
-              Pavarësisht përpjekjeve tona dhe punës së palodhur të nxënësve dhe mësuesve,
-               ne e kuptojmë që procesi i përzgjedhjes është i kufizuar dhe ndjek kritere specifike.
-                Kjo mundësi do të kishte qenë një platformë e shkëlqyer për të treguar potencialin e jashtëzakonshëm të shkollës sonë.
-                 Megjithatë, ne jemi të vendosur të vazhdojmë të investojmë në cilësinë e arsimit dhe përgatitjen e nxënësve tanë për sfida ndërkombëtare në të ardhmen.
+              ndërkombëtar PISA këtë vit.
             </p>
+            <p className="text-lg text-gray-300 leading-relaxed mt-4">
+              Pavarësisht kësaj, ne jemi të vendosur të vazhdojmë të investojmë në cilësinë e arsimit
+              dhe përgatitjen e nxënësve tanë për sfida ndërkombëtare në të ardhmen.
+            </p>
+          </motion.div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
-              <h2 className="text-2xl font-semibold mb-4 text-gray-900">Objektivat e PISA 2025</h2>
-              <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                <li>Vlerësimi i aftësive analitike në matematikë</li>
-                <li>Matja e kompetencave shkencore dhe metodologjike</li>
-                <li>Vlerësimi i aftësive të të kuptuarit në lexim</li>
-                <li>Krahasimi me standardet ndërkombëtare të arsimit</li>
-                <li>Identifikimi i fushave për përmirësim në sistemin arsimor</li>
-              </ul>
-            </div>
+          {/* Objectives Grid */}
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            {objectives.map((obj, index) => (
+              <motion.div
+                key={obj.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 + index * 0.1 }}
+              >
+                <Card className="bg-gray-800 border-gray-700 hover:bg-gray-750 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="text-4xl mb-4">{obj.icon}</div>
+                    <h3 className="text-xl font-semibold text-white mb-2">{obj.title}</h3>
+                    <p className="text-gray-400">{obj.desc}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
-              <h2 className="text-2xl font-semibold mb-4 text-gray-900">Fushat e Vlerësimit</h2>
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="p-4 border rounded-lg">
-                  <h3 className="text-xl font-medium mb-2 text-teal-600">Matematikë</h3>
-                  <p className="text-gray-600">Zgjidhja e problemeve, arsyetimi logjik dhe aftësitë analitike</p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <h3 className="text-xl font-medium mb-2 text-teal-600">Shkencë</h3>
-                  <p className="text-gray-600">Të kuptuarit shkencor, metodologjia kërkimore dhe analiza e të dhënave</p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <h3 className="text-xl font-medium mb-2 text-teal-600">Lexim</h3>
-                  <p className="text-gray-600">Të kuptuarit e tekstit, interpretimi dhe reflektimi kritik</p>
-                </div>
+          {/* Preparation Section */}
+          <motion.div
+            className="bg-gray-800 rounded-2xl p-8 border border-gray-700 shadow-xl"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <h2 className="text-2xl font-bold text-white mb-6">Përgatitja për PISA</h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-teal-400">Mbështetja jonë përfshin:</h3>
+                <ul className="space-y-3 text-gray-300">
+                  <li className="flex items-center space-x-2">
+                    <span className="text-teal-500">✓</span>
+                    <span>Seanca të dedikuara përgatitore</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <span className="text-teal-500">✓</span>
+                    <span>Materiale studimi dhe ushtrime praktike</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <span className="text-teal-500">✓</span>
+                    <span>Mbështetje individuale nga mësuesit</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <span className="text-teal-500">✓</span>
+                    <span>Simulime të testit PISA</span>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <Card className="bg-gray-750 border-gray-600">
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4">Përfitimet</h3>
+                    <ul className="space-y-3 text-gray-300">
+                      <li>• Zhvillimi i aftësive analitike</li>
+                      <li>• Përmirësimi i të menduarit kritik</li>
+                      <li>• Rritja e vetëbesimit akademik</li>
+                      <li>• Përgatitje për sfidat e ardhshme</li>
+                    </ul>
+                  </CardContent>
+                </Card>
               </div>
             </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-2xl font-semibold mb-4 text-gray-900">Përgatitja për PISA 2025</h2>
-              <p className="mb-4 text-gray-700">
-                Shkolla jonë ofron mbështetje të plotë për nxënësit që do të marrin pjesë në testin PISA 2025:
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                <li>Seanca të dedikuara përgatitore</li>
-                <li>Materiale studimi dhe ushtrime praktike</li>
-                <li>Mbështetje individuale nga mësuesit</li>
-                <li>Simulime të testit PISA</li>
-              </ul>
-            </div>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </div>
