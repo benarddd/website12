@@ -15,6 +15,7 @@ const __dirname = path.dirname(__filename);
 
 // Initialize Express app
 const app = express();
+app.set('trust proxy', true);
 
 // Security middleware - with relaxed CSP for development
 if (process.env.NODE_ENV === 'production') {
