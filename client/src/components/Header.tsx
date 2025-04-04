@@ -2,6 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import SchoolLogo from "./SchoolLogo";
+import { Button } from "./ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
+import { Input } from "./ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 // Added ThemeToggle component
 function ThemeToggle() {
@@ -30,12 +34,36 @@ function ThemeToggle() {
 
 
 export default function Header() {
+  const { toast } = useToast();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [, setLocation] = useLocation();
   const [scrollPosition, setScrollPosition] = useState(0);
   const isScrolled = scrollPosition > 50;
+  const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handleAdminLogin = () => {
+    if (adminPassword === "admin123") {
+      setIsAuthenticated(true);
+      setAdminPassword("");
+      setLocation("/admin");
+      setIsAdminDialogOpen(false);
+      toast({
+        title: "Autentikimi u bë me sukses",
+        description: "Mirë se vini në panelin e administratorit.",
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: "Gabim autentikimi",
+        description: "Fjalëkalimi i dhënë nuk është i saktë. Ju lutemi provoni përsëri.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Handle scroll position manually instead of using hook
   useEffect(() => {
@@ -190,13 +218,64 @@ export default function Header() {
               transition={{ duration: 0.2, type: "tween" }}
               style={{ willChange: "transform" }}
             >
-              <Link
-                href="/admin"
-                className="bg-[#26a69a] hover:bg-opacity-80 text-white px-4 py-2 rounded-md transition-all duration-300"
+              <Button
+                onClick={() => setIsAdminDialogOpen(true)}
+                className="bg-[#26a69a] hover:bg-opacity-80 text-white px-4 py-2 rounded-md transition-all duration-300 flex items-center gap-2"
               >
+                <span className="text-xl">👥</span>
                 Staff
-              </Link>
+              </Button>
             </motion.div>
+
+            {/* Staff Login Dialog */}
+            <Dialog open={isAdminDialogOpen} onOpenChange={setIsAdminDialogOpen}>
+              <DialogContent className="sm:max-w-md bg-gray-800 border-gray-700 text-white">
+                <DialogHeader>
+                  <DialogTitle className="text-teal-400">Hyrje për Stafin</DialogTitle>
+                  <DialogDescription className="text-gray-400">
+                    Ju lutem vendosni fjalëkalimin e stafit për të menaxhuar sistemin.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <label htmlFor="password" className="text-sm font-medium text-gray-300">
+                      Fjalëkalimi
+                    </label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={adminPassword}
+                      onChange={(e) => setAdminPassword(e.target.value)}
+                      placeholder="Vendosni fjalëkalimin"
+                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleAdminLogin();
+                        }
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex justify-between">
+                    <Button
+                      variant="outline"
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                      onClick={() => setIsAdminDialogOpen(false)}
+                    >
+                      Anulo
+                    </Button>
+
+                    <Button
+                      className="bg-teal-600 hover:bg-teal-700 text-white"
+                      onClick={handleAdminLogin}
+                    >
+                      Kyçu
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
 
           {/* Mobile Menu Button */}

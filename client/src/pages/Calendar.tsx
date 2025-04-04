@@ -250,17 +250,6 @@ export default function Calendar() {
           <p className="text-gray-400 max-w-2xl mx-auto mb-6">
             Shiko të gjitha aktivitetet, pushimet dhe ngjarjet shkollore për vitin akademik
           </p>
-          
-          {/* Staff Login Button */}
-          <Button 
-            onClick={() => setIsAdminDialogOpen(true)}
-            className="bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-2"
-          >
-            <span className="text-xl">👥</span>
-            Hyrje për Stafin
-          </Button>
-
-
         </motion.div>
 
         {/* Loading indicator */}
