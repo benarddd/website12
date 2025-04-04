@@ -742,7 +742,7 @@ const Admin = () => {
                                           onClick={() => {
                                             if (window.confirm('Jeni i sigurt që dëshironi të fshini këtë lajm?')) {
                                               const success = deleteNews(item.id);
-                                              if (if (success) {
+                                              if (success) {
                                                 toast({
                                                   title: "Lajmi u fshi me sukses",
                                                   variant: "default"
