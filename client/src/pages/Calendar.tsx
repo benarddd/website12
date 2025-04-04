@@ -37,7 +37,7 @@ interface CalendarProps {
   isAuthenticated?: boolean;
 }
 
-export default function Calendar({ isAuthenticated = false }: CalendarProps) {
+export default function Calendar() {
   const { toast } = useToast();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedDayEvents, setSelectedDayEvents] = useState<FormattedCalendarEvent[]>([]);
@@ -45,8 +45,6 @@ export default function Calendar({ isAuthenticated = false }: CalendarProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isAddEventDialogOpen, setIsAddEventDialogOpen] = useState(false);
-  const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false);
-  const [adminPassword, setAdminPassword] = useState("");
   const [newEvent, setNewEvent] = useState({
     title: "",
     description: "",

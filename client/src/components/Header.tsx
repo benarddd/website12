@@ -204,27 +204,12 @@ export default function Header() {
                 transition={{ duration: 0.2, type: "tween" }}
                 style={{ willChange: "transform" }}
               >
-                {item.path === "/calendar" ? (
-                  <Link
-                    href={item.path}
-                    className="text-light hover:text-[#26a69a] transition-colors duration-300"
-                    onClick={(e) => {
-                      if (!isAuthenticated) {
-                        e.preventDefault();
-                        setIsAdminDialogOpen(true);
-                      }
-                    }}
-                  >
-                    {item.label}
-                  </Link>
-                ) : (
-                  <Link
-                    href={item.path}
-                    className="text-light hover:text-[#26a69a] transition-colors duration-300"
-                  >
-                    {item.label}
-                  </Link>
-                )}
+                <Link
+                  href={item.path}
+                  className="text-light hover:text-[#26a69a] transition-colors duration-300"
+                >
+                  {item.label}
+                </Link>
               </motion.div>
             ))}
 

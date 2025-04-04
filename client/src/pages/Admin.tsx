@@ -32,7 +32,7 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
   const [activeTab, setActiveTab] = useState<string>("messages");
-  
+
   // State për formën e lajmeve
   const [newsForm, setNewsForm] = useState<PublishNewsFormState>({
     title: "",
@@ -68,12 +68,12 @@ const Admin = () => {
           'Authorization': `Basic ${credentials}`
         }
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Gabim në marrjen e të dhënave');
       }
-      
+
       return response.json();
     }
   });
@@ -101,7 +101,7 @@ const Admin = () => {
   const handleLogout = () => {
     // Lirimi i URL-ve të objekteve për imazhet
     mediaPreview.forEach(url => URL.revokeObjectURL(url));
-    
+
     // Reset të gjitha të dhënat
     setIsAuthenticated(false);
     setPassword("");
@@ -109,7 +109,7 @@ const Admin = () => {
     setActiveTab("messages");
     setSelectedImages([]);
     setMediaPreview([]);
-    
+
     // Reset forma e lajmit
     setNewsForm({
       title: "",
@@ -122,24 +122,24 @@ const Admin = () => {
       tags: ""
     });
   };
-  
+
   // Funksion për përditësimin e formës së lajmeve
   const handleNewsInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNewsForm(prev => ({ ...prev, [name]: value }));
   };
-  
+
   // Funksioni për ngarkimin e imazheve me server-side storage
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       // Shto imazhet në listën lokale
       const files = Array.from(e.target.files);
       setSelectedImages(prev => [...prev, ...files]);
-      
+
       // Krijoj URL-të për paraqitjen paraprakisht të imazheve
       const newPreviews = files.map(file => URL.createObjectURL(file));
       setMediaPreview(prev => [...prev, ...newPreviews]);
-      
+
       try {
         // Për çdo file, ngarkoje në server dhe merr URL-të e ruajtura
         const uploadPromises = files.map(async (file) => {
@@ -149,9 +149,9 @@ const Admin = () => {
             reader.onloadend = () => resolve(reader.result as string);
             reader.readAsDataURL(file);
           });
-          
+
           const fileData = await fileDataPromise;
-          
+
           // Dërgoj të dhënat në server
           const response = await fetch('/api/upload-image', {
             method: 'POST',
@@ -164,26 +164,26 @@ const Admin = () => {
               fileData: fileData
             })
           });
-          
+
           if (!response.ok) {
             throw new Error('Gabim në ngarkimin e imazhit në server');
           }
-          
+
           // Merr URL e kthyer nga serveri
           const result = await response.json();
           return result.url;
         });
-        
+
         // Prit që të gjitha ngarkimet të përfundojnë
         const uploadedUrls = await Promise.all(uploadPromises);
-        
+
         // Nëse nuk është përcaktuar ende një imazh kryesor, përdor imazhin e parë të ngarkuar
         if (!newsForm.image && uploadedUrls.length > 0) {
           setNewsForm(prev => ({
             ...prev,
             image: uploadedUrls[0],
           }));
-          
+
           toast({
             title: "Imazhi u ngarkua me sukses",
             description: "Imazhi u ruajt në server dhe mund të përdoret për lajmin.",
@@ -200,48 +200,48 @@ const Admin = () => {
       }
     }
   };
-  
+
   // Funksioni për heqjen e imazhit
   const removeImage = (index: number) => {
     // Lirim i URL-së së objektit për të shmangur rrjedhjet e memories
     URL.revokeObjectURL(mediaPreview[index]);
-    
+
     // Heqje nga lista e imazheve dhe parapamjeve
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
     setMediaPreview(prev => prev.filter((_, i) => i !== index));
-    
+
     // Nëse imazhi i hequr ishte imazhi kryesor, zgjidh një imazh tjetër ose boshatis fushën
     if (newsForm.image === mediaPreview[index]) {
       const newMediaPreview = [...mediaPreview];
       newMediaPreview.splice(index, 1);
-      
+
       setNewsForm(prev => ({
         ...prev,
         image: newMediaPreview.length > 0 ? newMediaPreview[0] : "",
       }));
     }
   };
-  
+
   // Funksioni për publikimin e lajmit të ri
   const handlePublishNews = () => {
     setIsSubmittingNews(true);
-    
+
     try {
       // Përgatit të dhënat e lajmit
       const currentDate = new Date();
       const formattedDate = format(currentDate, "dd MMMM yyyy");
-      
+
       // Përdor URL-në e imazhit aktual - nuk duhet të jetë blob: më pasi e kemi ngarkuar tashmë në server
       let finalImageUrl = newsForm.image;
-      
+
       // Kontrollo nëse imazhi është ende URL i brendshëm i objektit (e cila ndodh nëse ngarkimi API dështoi)
       if (newsForm.image.startsWith('blob:')) {
         console.warn('Imazhi ende përdor URL lokale blob:, që mund të shkaktojë probleme!');
-        
+
         // Në këtë rast, përdorim një URL të jashtëm të sigurt
         finalImageUrl = `https://placehold.co/600x400/26a69a/ffffff?text=${encodeURIComponent(newsForm.title)}`;
       }
-      
+
       const newNewsItem: Omit<NewsItem, "id"> = {
         title: newsForm.title,
         category: newsForm.category,
@@ -253,13 +253,13 @@ const Admin = () => {
         author: newsForm.author,
         tags: newsForm.tags.split(',').map(tag => tag.trim())
       };
-      
+
       // Shto lajmin e ri
       addNews(newNewsItem);
-      
+
       // Lirimi i URL-ve të objekteve për imazhet
       mediaPreview.forEach(url => URL.revokeObjectURL(url));
-      
+
       // Reset forma dhe të dhënat e mediave
       setNewsForm({
         title: "",
@@ -273,7 +273,7 @@ const Admin = () => {
       });
       setSelectedImages([]);
       setMediaPreview([]);
-      
+
       toast({
         title: "Lajmi u publikua me sukses",
         description: "Lajmi i ri tani është i disponueshëm në seksionin e lajmeve.",
@@ -350,7 +350,7 @@ const Admin = () => {
 
               {/* Tabs për seksionet e ndryshme */}
               <Tabs defaultValue="messages" value={activeTab} onValueChange={setActiveTab} className="w-full mb-6">
-                <TabsList className="grid grid-cols-3 bg-gray-800">
+                <TabsList className="grid grid-cols-4 bg-gray-800">
                   <TabsTrigger value="messages" className="data-[state=active]:bg-gray-700 data-[state=active]:text-teal-400">
                     Mesazhet
                   </TabsTrigger>
@@ -360,8 +360,11 @@ const Admin = () => {
                   <TabsTrigger value="manage-news" className="data-[state=active]:bg-gray-700 data-[state=active]:text-teal-400">
                     Menaxho Lajmet
                   </TabsTrigger>
+                  <TabsTrigger value="calendar" className="data-[state=active]:bg-gray-700 data-[state=active]:text-teal-400">
+                    Kalendari
+                  </TabsTrigger>
                 </TabsList>
-                
+
                 {/* Tab për mesazhet */}
                 <TabsContent value="messages" className="mt-4">
                   {/* Pamja e detajuar e një mesazhi të zgjedhur */}
@@ -448,7 +451,7 @@ const Admin = () => {
                     </div>
                   )}
                 </TabsContent>
-                
+
                 {/* Tab për publikimin e lajmeve */}
                 <TabsContent value="news" className="mt-4">
                   <Card className="bg-gray-800 border-gray-700 shadow-lg text-white">
@@ -475,7 +478,7 @@ const Admin = () => {
                             required
                           />
                         </div>
-                        
+
                         {/* Kategoria */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
@@ -491,7 +494,7 @@ const Admin = () => {
                               className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                             />
                           </div>
-                          
+
                           {/* Ngjyra e kategorisë */}
                           <div className="space-y-2">
                             <label htmlFor="categoryColor" className="text-sm font-medium text-gray-300">
@@ -515,7 +518,7 @@ const Admin = () => {
                             </div>
                           </div>
                         </div>
-                        
+
                         {/* Përshkrimi i shkurtër */}
                         <div className="space-y-2">
                           <label htmlFor="description" className="text-sm font-medium text-gray-300">
@@ -531,7 +534,7 @@ const Admin = () => {
                             required
                           />
                         </div>
-                        
+
                         {/* Përmbajtja e plotë */}
                         <div className="space-y-2">
                           <label htmlFor="content" className="text-sm font-medium text-gray-300">
@@ -546,13 +549,13 @@ const Admin = () => {
                             className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 min-h-[150px]"
                           />
                         </div>
-                        
+
                         {/* Media (Imazhet/Videot) */}
                         <div className="space-y-2">
                           <label className="text-sm font-medium text-gray-300">
                             Media (Foto dhe Imazhe)*
                           </label>
-                          
+
                           {/* Ngarkimi i imazheve */}
                           <div className="grid grid-cols-1 gap-3">
                             {/* Zona e ngarkimit të imazheve */}
@@ -574,7 +577,7 @@ const Admin = () => {
                                 <p className="text-gray-400 text-sm mt-1">ose tërhiq dhe lësho këtu</p>
                               </div>
                             </div>
-                            
+
                             {/* URL-ja e imazhit (fushë opsionale) */}
                             <div className="mt-3">
                               <label htmlFor="image" className="text-sm font-medium text-gray-300 block mb-1">
@@ -625,7 +628,7 @@ const Admin = () => {
                                 </div>
                               </div>
                             )}
-                            
+
                             {/* Paraqitja e imazhit nga URL */}
                             {newsForm.image && mediaPreview.indexOf(newsForm.image) === -1 && (
                               <div className="mt-2 p-2 bg-gray-700 rounded-lg">
@@ -642,7 +645,7 @@ const Admin = () => {
                             )}
                           </div>
                         </div>
-                        
+
                         {/* Autori */}
                         <div className="space-y-2">
                           <label htmlFor="author" className="text-sm font-medium text-gray-300">
@@ -657,7 +660,7 @@ const Admin = () => {
                             className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                           />
                         </div>
-                        
+
                         {/* Etiketat */}
                         <div className="space-y-2">
                           <label htmlFor="tags" className="text-sm font-medium text-gray-300">
@@ -694,7 +697,7 @@ const Admin = () => {
                     </CardFooter>
                   </Card>
                 </TabsContent>
-                
+
                 {/* Tab për menaxhimin e lajmeve */}
                 <TabsContent value="manage-news" className="mt-4">
                   <Card className="bg-gray-800 border-gray-700 shadow-lg text-white">
@@ -739,7 +742,7 @@ const Admin = () => {
                                           onClick={() => {
                                             if (window.confirm('Jeni i sigurt që dëshironi të fshini këtë lajm?')) {
                                               const success = deleteNews(item.id);
-                                              if (success) {
+                                              if (if (success) {
                                                 toast({
                                                   title: "Lajmi u fshi me sukses",
                                                   variant: "default"
@@ -777,6 +780,10 @@ const Admin = () => {
                       </div>
                     </CardContent>
                   </Card>
+                </TabsContent>
+                {/* Add Calendar Tab Content Here */}
+                <TabsContent value="calendar" className="mt-4">
+                  <p>Calendar Content will go here</p>
                 </TabsContent>
               </Tabs>
             </>
