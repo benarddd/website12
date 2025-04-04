@@ -277,7 +277,15 @@ export default function Calendar() {
             className="col-span-2 bg-[#1e1e1e] rounded-xl p-6 shadow-lg"
           >
             {/* Calendar management buttons for admin */}
-            {isAuthenticated && (
+            {/* Academic Calendar Categories */}
+<div className="mb-6 flex gap-4 flex-wrap">
+  <button className="px-4 py-2 bg-blue-500 text-white rounded">Provimet</button>
+  <button className="px-4 py-2 bg-green-500 text-white rounded">Aktivitetet</button>
+  <button className="px-4 py-2 bg-purple-500 text-white rounded">Pushimet</button>
+  <button className="px-4 py-2 bg-amber-500 text-white rounded">Eventi Shkollor</button>
+</div>
+
+{isAuthenticated && (
               <div className="flex justify-end mb-4">
                 <Button 
                   onClick={() => setIsAddEventDialogOpen(true)} 
