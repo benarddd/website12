@@ -3,6 +3,32 @@ import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import SchoolLogo from "./SchoolLogo";
 
+// Added ThemeToggle component
+function ThemeToggle() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    localStorage.setItem('darkMode', !isDarkMode);
+    document.body.classList.toggle('dark');
+  };
+
+  useEffect(() => {
+    const storedDarkMode = localStorage.getItem('darkMode');
+    if (storedDarkMode === 'true') {
+      setIsDarkMode(true);
+      document.body.classList.add('dark');
+    }
+  }, []);
+
+  return (
+    <button onClick={toggleTheme} className="p-2 rounded-md bg-gray-200 dark:bg-gray-700">
+      {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+    </button>
+  );
+}
+
+
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -10,13 +36,13 @@ export default function Header() {
   const [, setLocation] = useLocation();
   const [scrollPosition, setScrollPosition] = useState(0);
   const isScrolled = scrollPosition > 50;
-  
+
   // Handle scroll position manually instead of using hook
   useEffect(() => {
     const handlePositionChange = () => {
       setScrollPosition(window.scrollY);
     };
-    
+
     window.addEventListener('scroll', handlePositionChange, { passive: true });
     return () => window.removeEventListener('scroll', handlePositionChange);
   }, []);
@@ -135,6 +161,7 @@ export default function Header() {
 
           {/* Navigation Links - Desktop */}
           <div className="hidden md:flex items-center space-x-6">
+            <ThemeToggle /> {/* Added Theme Toggle here */}
             {[
               { path: "/maturashtetrore", label: "Matura Shteterore" },
               { path: "/about", label: "Rreth Shkollës" },
@@ -157,7 +184,7 @@ export default function Header() {
                 </Link>
               </motion.div>
             ))}
-            
+
             <motion.div 
               whileHover={{ scale: 1.05 }} 
               transition={{ duration: 0.2, type: "tween" }}

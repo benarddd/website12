@@ -11,7 +11,8 @@ export default function PageTransition({ children }: PageTransitionProps) {
   const [loading, setLoading] = useState(false);
   const [prevLocation, setPrevLocation] = useState('');
   const [location] = useLocation();
-  
+  const [isDarkMode, setIsDarkMode] = useState(false); // Added state for dark mode
+
   useEffect(() => {
     // Always reset scroll position when mounting component
     window.scrollTo({
@@ -19,35 +20,35 @@ export default function PageTransition({ children }: PageTransitionProps) {
       behavior: "auto"
     });
   }, []);
-  
+
   useEffect(() => {
     // Kur ndryshon lokacioni, fillo animacionin e ngarkimit dhe reset scroll position
     if (location !== prevLocation && prevLocation !== '') {
       setLoading(true);
-      
+
       // Kthe scrollin në fillim të faqes - use immediate reset
       window.scrollTo({
         top: 0,
         behavior: "auto" // Use "auto" instead of "smooth" for immediate reset
       });
-      
+
       // Simulimi i kohës së ngarkimit të përmbajtjes
       const timer = setTimeout(() => {
         setLoading(false);
-        
+
         // Double-check that scroll is at top after loading
         window.scrollTo({
           top: 0,
           behavior: "auto"
         });
       }, 800); // Kohëzgjatja e animacionit të ngarkimit
-      
+
       return () => clearTimeout(timer);
     }
-    
+
     setPrevLocation(location);
   }, [location, prevLocation]);
-  
+
   // Variantet e animacionit për faqet
   const pageVariants = {
     initial: {
@@ -72,7 +73,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
       },
     },
   };
-  
+
   // Variantet e animacionit për ngarkimin
   const loaderVariants = {
     initial: {
@@ -91,9 +92,26 @@ export default function PageTransition({ children }: PageTransitionProps) {
       },
     },
   };
-  
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    localStorage.setItem('darkMode', (!isDarkMode).toString());
+  };
+
+  useEffect(() => {
+    const storedDarkMode = localStorage.getItem('darkMode');
+    if (storedDarkMode) {
+      setIsDarkMode(JSON.parse(storedDarkMode));
+    }
+  }, []);
+
   return (
-    <div className="relative min-h-screen">
+    <div className={`relative min-h-screen ${isDarkMode ? 'dark' : ''}`}> {/* Added dark mode class */}
+      <header className="bg-gray-800 dark:bg-gray-200 p-4"> {/* Added header */}
+        <button onClick={toggleDarkMode} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+        </button>
+      </header>
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div
