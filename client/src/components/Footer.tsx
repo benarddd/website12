@@ -40,7 +40,6 @@ export default function Footer() {
             <ul className="space-y-3">
               <li><a href="/maturashtetrore" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Matura Shtetërore 2025</a></li>
               <li><a href="/programs/pisa-2025" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">PISA 2025</a></li>
-              <li><a href="/student-portal" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Portali i Nxënësve</a></li>
               <li><a href="/clubs/art" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Klubi Art & Zeje</a></li>
               <li><a href="/clubs/debate" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Klubi i Debatit</a></li>
               <li><a href="/diversity" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Respektimi i Diversitetit</a></li>
