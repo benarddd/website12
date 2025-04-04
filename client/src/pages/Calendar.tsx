@@ -33,17 +33,18 @@ interface FormattedCalendarEvent {
   id?: number; // Added ID for original events
 }
 
-export default function Calendar() {
+interface CalendarProps {
+  isAuthenticated?: boolean;
+}
+
+export default function Calendar({ isAuthenticated = false }: CalendarProps) {
   const { toast } = useToast();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedDayEvents, setSelectedDayEvents] = useState<FormattedCalendarEvent[]>([]);
   const [events, setEvents] = useState<FormattedCalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Added authentication state
-  const [isAdminDialogOpen, setIsAdminDialogOpen] = useState(false); // Added dialog state
-  const [isAddEventDialogOpen, setIsAddEventDialogOpen] = useState(false); // Added dialog state
-  const [adminPassword, setAdminPassword] = useState(""); // Added password state
+  const [isAddEventDialogOpen, setIsAddEventDialogOpen] = useState(false);
   const [newEvent, setNewEvent] = useState({
     title: "",
     description: "",
