@@ -98,7 +98,7 @@ app.use((req, res, next) => {
   const sanitizedPath = req.path.replace(/[\n\r]/g, '');
   const sanitizedMethod = req.method.replace(/[\n\r]/g, '');
   const ip = req.ip || req.socket.remoteAddress || 'unknown';
-  
+
   const start = Date.now();
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
@@ -112,7 +112,7 @@ app.use((req, res, next) => {
     const duration = Date.now() - start;
     if (sanitizedPath.startsWith("/api")) {
       let logLine = `[${new Date().toISOString()}] IP: ${ip} - ${sanitizedMethod} ${sanitizedPath} ${res.statusCode} in ${duration}ms`;
-      
+
       // Only log minimal information about the response
       if (capturedJsonResponse) {
         // Only log success status, not full payload
@@ -143,23 +143,23 @@ app.use((req, res, next) => {
       message: err.message || "Unknown error",
       timestamp: new Date().toISOString()
     });
-    
+
     // Set appropriate status code
     const status = err.status || err.statusCode || 500;
-    
+
     // Only show generic messages to client in production
     const isProduction = process.env.NODE_ENV === 'production';
     const clientMessage = isProduction ? 
       "Ndodhi një gabim në server. Ju lutemi provoni përsëri më vonë." : 
       err.message || "Internal Server Error";
-    
+
     // Send minimal error info to client
     res.status(status).json({ 
       success: false,
       message: clientMessage,
       errorId: errorId // Allow users to reference this error when reporting issues
     });
-    
+
     // Don't throw the error further as it could crash the server
     // Instead, we've already logged it above
   });

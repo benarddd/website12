@@ -1,269 +1,133 @@
-import { 
-  users, 
-  comments, 
-  calendarEvents, 
-  type User, 
-  type InsertUser, 
-  type Comment, 
-  type InsertComment,
-  type CalendarEvent,
-  type InsertCalendarEvent
-} from "@shared/schema";
-import { db } from "./db";
-import { eq, sql, desc, and, gte, lte } from "drizzle-orm";
-import * as bcrypt from 'bcrypt';
+// In-memory storage implementation
+class InMemoryStorage {
+  private comments: any[] = [];
+  private calendarEvents: any[] = [];
+  private users: any[] = [];
+  private nextCommentId = 1;
+  private nextEventId = 1;
+  private nextUserId = 1;
 
-// modify the interface with any CRUD methods
-// you might need
+  async createComment(comment: any) {
+    const newComment = {
+      id: this.nextCommentId++,
+      ...comment,
+      createdAt: new Date(),
+      isRead: false
+    };
+    this.comments.push(newComment);
+    return newComment;
+  }
 
-export interface IStorage {
-  // User related methods
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  updateUserLastLogin(id: number): Promise<User | undefined>;
-  verifyUserPassword(username: string, password: string): Promise<User | undefined>;
-  
-  // Comment related methods
-  createComment(comment: InsertComment): Promise<Comment>;
-  getAllComments(): Promise<Comment[]>;
-  markCommentAsRead(id: number): Promise<Comment | undefined>;
-  deleteComment(id: number): Promise<boolean>;
-  
-  // Calendar events related methods
-  createCalendarEvent(event: InsertCalendarEvent): Promise<CalendarEvent>;
-  getCalendarEvent(id: number): Promise<CalendarEvent | undefined>;
-  getAllCalendarEvents(): Promise<CalendarEvent[]>;
-  getCalendarEventsByDateRange(startDate: Date, endDate: Date): Promise<CalendarEvent[]>;
-  updateCalendarEvent(id: number, event: Partial<InsertCalendarEvent>): Promise<CalendarEvent | undefined>;
-  deleteCalendarEvent(id: number): Promise<boolean>;
-  
-  // Utility methods
-  checkDatabaseConnection(): Promise<boolean>;
+  async getAllComments() {
+    return this.comments;
+  }
+
+  async createCalendarEvent(event: any) {
+    const newEvent = {
+      id: this.nextEventId++,
+      ...event,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.calendarEvents.push(newEvent);
+    return newEvent;
+  }
+
+  async getAllCalendarEvents() {
+    return this.calendarEvents;
+  }
+
+  async getCalendarEventsByDateRange(startDate: Date, endDate: Date) {
+    return this.calendarEvents.filter(event => {
+      const eventDate = new Date(event.eventDate);
+      return eventDate >= startDate && eventDate <= endDate;
+    });
+  }
+
+  async getCalendarEvent(id: number) {
+    return this.calendarEvents.find(event => event.id === id);
+  }
+
+  async updateCalendarEvent(id: number, data: any) {
+    const index = this.calendarEvents.findIndex(event => event.id === id);
+    if (index !== -1) {
+      this.calendarEvents[index] = {
+        ...this.calendarEvents[index],
+        ...data,
+        updatedAt: new Date()
+      };
+      return this.calendarEvents[index];
+    }
+    return null;
+  }
+
+  async deleteCalendarEvent(id: number) {
+    const index = this.calendarEvents.findIndex(event => event.id === id);
+    if (index !== -1) {
+      this.calendarEvents.splice(index, 1);
+      return true;
+    }
+    return false;
+  }
+
+  async checkDatabaseConnection() {
+    return true; // Always connected since it's in-memory
+  }
+
+    async getUser(id: number): Promise<any | undefined> {
+        return this.users.find(user => user.id === id);
+    }
+
+    async getUserByUsername(username: string): Promise<any | undefined> {
+        return this.users.find(user => user.username === username);
+    }
+
+    async createUser(user: any): Promise<any> {
+        const newUser = {
+            id: this.nextUserId++,
+            ...user,
+            createdAt: new Date(),
+            lastLogin: null
+        };
+        this.users.push(newUser);
+        return newUser;
+    }
+
+    async updateUserLastLogin(id: number): Promise<any | undefined> {
+        const userIndex = this.users.findIndex(user => user.id === id);
+        if (userIndex !== -1) {
+            this.users[userIndex].lastLogin = new Date();
+            return this.users[userIndex];
+        }
+        return undefined;
+    }
+
+    async verifyUserPassword(username: string, password: string): Promise<any | undefined> {
+        const user = await this.getUserByUsername(username);
+        if (!user) return undefined;
+        // In memory storage, no password hashing.  This is a simplification for the example.
+        if (user.password !== password) return undefined;
+        return this.updateUserLastLogin(user.id);
+    }
+
+    async markCommentAsRead(id: number): Promise<any | undefined> {
+        const commentIndex = this.comments.findIndex(comment => comment.id === id);
+        if (commentIndex !== -1) {
+            this.comments[commentIndex].isRead = true;
+            return this.comments[commentIndex];
+        }
+        return undefined;
+    }
+
+    async deleteComment(id: number): Promise<boolean> {
+        const index = this.comments.findIndex(comment => comment.id === id);
+        if (index !== -1) {
+            this.comments.splice(index, 1);
+            return true;
+        }
+        return false;
+    }
+
 }
 
-export class DatabaseStorage implements IStorage {
-  // User related methods
-  async getUser(id: number): Promise<User | undefined> {
-    try {
-      const [user] = await db.select().from(users).where(eq(users.id, id));
-      return user || undefined;
-    } catch (error) {
-      console.error("Error getting user by ID:", error);
-      throw error;
-    }
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    try {
-      const [user] = await db.select().from(users).where(eq(users.username, username));
-      return user || undefined;
-    } catch (error) {
-      console.error("Error getting user by username:", error);
-      throw error;
-    }
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    try {
-      // Hash the password before storing it
-      const hashedPassword = await bcrypt.hash(insertUser.password, 10);
-      
-      const [user] = await db
-        .insert(users)
-        .values({
-          ...insertUser,
-          password: hashedPassword,
-        })
-        .returning();
-      return user;
-    } catch (error) {
-      console.error("Error creating user:", error);
-      throw error;
-    }
-  }
-  
-  async updateUserLastLogin(id: number): Promise<User | undefined> {
-    try {
-      const [user] = await db
-        .update(users)
-        .set({ lastLogin: new Date() })
-        .where(eq(users.id, id))
-        .returning();
-      return user;
-    } catch (error) {
-      console.error("Error updating user last login:", error);
-      throw error;
-    }
-  }
-  
-  async verifyUserPassword(username: string, password: string): Promise<User | undefined> {
-    try {
-      const user = await this.getUserByUsername(username);
-      if (!user) return undefined;
-      
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) return undefined;
-      
-      // Update last login time
-      return this.updateUserLastLogin(user.id);
-    } catch (error) {
-      console.error("Error verifying user password:", error);
-      throw error;
-    }
-  }
-
-  // Comment related methods
-  async createComment(insertComment: InsertComment): Promise<Comment> {
-    try {
-      const [comment] = await db
-        .insert(comments)
-        .values(insertComment)
-        .returning();
-      return comment;
-    } catch (error) {
-      console.error("Error creating comment:", error);
-      throw error;
-    }
-  }
-
-  async getAllComments(): Promise<Comment[]> {
-    try {
-      return await db
-        .select()
-        .from(comments)
-        .orderBy(desc(comments.createdAt));
-    } catch (error) {
-      console.error("Error getting all comments:", error);
-      throw error;
-    }
-  }
-  
-  async markCommentAsRead(id: number): Promise<Comment | undefined> {
-    try {
-      const [comment] = await db
-        .update(comments)
-        .set({ isRead: true })
-        .where(eq(comments.id, id))
-        .returning();
-      return comment;
-    } catch (error) {
-      console.error("Error marking comment as read:", error);
-      throw error;
-    }
-  }
-  
-  async deleteComment(id: number): Promise<boolean> {
-    try {
-      const result = await db
-        .delete(comments)
-        .where(eq(comments.id, id))
-        .returning({ id: comments.id });
-      
-      return result.length > 0;
-    } catch (error) {
-      console.error("Error deleting comment:", error);
-      throw error;
-    }
-  }
-  
-  // Calendar events related methods
-  async createCalendarEvent(event: InsertCalendarEvent): Promise<CalendarEvent> {
-    try {
-      const [calendarEvent] = await db
-        .insert(calendarEvents)
-        .values(event)
-        .returning();
-      return calendarEvent;
-    } catch (error) {
-      console.error("Error creating calendar event:", error);
-      throw error;
-    }
-  }
-  
-  async getCalendarEvent(id: number): Promise<CalendarEvent | undefined> {
-    try {
-      const [event] = await db
-        .select()
-        .from(calendarEvents)
-        .where(eq(calendarEvents.id, id));
-      return event || undefined;
-    } catch (error) {
-      console.error("Error getting calendar event:", error);
-      throw error;
-    }
-  }
-  
-  async getAllCalendarEvents(): Promise<CalendarEvent[]> {
-    try {
-      return await db
-        .select()
-        .from(calendarEvents)
-        .orderBy(calendarEvents.eventDate);
-    } catch (error) {
-      console.error("Error getting all calendar events:", error);
-      throw error;
-    }
-  }
-  
-  async getCalendarEventsByDateRange(startDate: Date, endDate: Date): Promise<CalendarEvent[]> {
-    try {
-      return await db
-        .select()
-        .from(calendarEvents)
-        .where(
-          sql`${calendarEvents.eventDate} >= ${startDate} AND ${calendarEvents.eventDate} <= ${endDate}`
-        )
-        .orderBy(calendarEvents.eventDate);
-    } catch (error) {
-      console.error("Error getting calendar events by date range:", error);
-      throw error;
-    }
-  }
-  
-  async updateCalendarEvent(id: number, event: Partial<InsertCalendarEvent>): Promise<CalendarEvent | undefined> {
-    try {
-      const [updatedEvent] = await db
-        .update(calendarEvents)
-        .set({
-          ...event,
-          updatedAt: new Date(),
-        })
-        .where(eq(calendarEvents.id, id))
-        .returning();
-      return updatedEvent;
-    } catch (error) {
-      console.error("Error updating calendar event:", error);
-      throw error;
-    }
-  }
-  
-  async deleteCalendarEvent(id: number): Promise<boolean> {
-    try {
-      const result = await db
-        .delete(calendarEvents)
-        .where(eq(calendarEvents.id, id))
-        .returning({ id: calendarEvents.id });
-      
-      return result.length > 0;
-    } catch (error) {
-      console.error("Error deleting calendar event:", error);
-      throw error;
-    }
-  }
-  
-  // Utility methods
-  async checkDatabaseConnection(): Promise<boolean> {
-    try {
-      // Execute a simple query to check database connection
-      // Using a simple query on the users table instead of raw SQL
-      const result = await db.select().from(users).limit(1);
-      return true; // If we got here, the connection is working
-    } catch (error) {
-      console.error("Database connection check failed:", error);
-      throw error;
-    }
-  }
-}
-
-export const storage = new DatabaseStorage();
+export const storage = new InMemoryStorage();
