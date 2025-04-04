@@ -250,6 +250,15 @@ export default function Calendar() {
           <p className="text-gray-400 max-w-2xl mx-auto mb-6">
             Shiko të gjitha aktivitetet, pushimet dhe ngjarjet shkollore për vitin akademik
           </p>
+          
+          {/* Staff Login Button */}
+          <Button 
+            onClick={() => setIsAdminDialogOpen(true)}
+            className="bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-2"
+          >
+            <span className="text-xl">👥</span>
+            Hyrje për Stafin
+          </Button>
 
 
         </motion.div>
@@ -479,9 +488,9 @@ export default function Calendar() {
       <Dialog open={isAdminDialogOpen} onOpenChange={setIsAdminDialogOpen}>
         <DialogContent className="sm:max-w-md bg-gray-800 border-gray-700 text-white">
           <DialogHeader>
-            <DialogTitle className="text-teal-400">Autentifikimi i Administratorit</DialogTitle>
+            <DialogTitle className="text-teal-400">Hyrje për Stafin</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Ju lutem vendosni fjalëkalimin për të menaxhuar kalendarin e shkollës.
+              Ju lutem vendosni fjalëkalimin e stafit për të menaxhuar kalendarin e aktiviteteve shkollore.
             </DialogDescription>
           </DialogHeader>
 
@@ -557,17 +566,20 @@ export default function Calendar() {
       <Dialog open={isAddEventDialogOpen} onOpenChange={setIsAddEventDialogOpen}>
         <DialogContent className="sm:max-w-md bg-gray-800 border-gray-700 text-white">
           <DialogHeader>
-            <DialogTitle className="text-teal-400">Shto Ngjarje të Re</DialogTitle>
+            <DialogTitle className="text-teal-400">Shto Aktivitet të Ri</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Plotësoni detajet e ngjarjes së re për kalendarin shkollor.
+              Plotësoni detajet e aktivitetit të ri. Kjo do të shfaqet në kalendarin e shkollës për të gjithë nxënësit dhe stafin.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label htmlFor="title" className="text-sm font-medium text-gray-300">
-                Titulli
-              </label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="title" className="text-sm font-medium text-gray-300">
+                  Titulli i Aktivitetit
+                </label>
+                <span className="text-xs text-gray-500">p.sh. "Mbledhje e Stafit", "Ekskursion"</span>
+              </div>
               <Input
                 id="title"
                 value={newEvent.title}
