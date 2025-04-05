@@ -262,15 +262,7 @@ export default function Calendar({ isAuthenticated = false }: { isAuthenticated?
   <button className="px-4 py-2 bg-amber-500 text-white rounded">Eventi Shkollor</button>
 </div>
 
-            <div className="flex justify-end mb-4">
-                <Button 
-                  onClick={() => setIsAddEventDialogOpen(true)} 
-                  size="sm"
-                  className="bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-1"
-                >
-                  <span>Shto Ngjarje</span>
-                </Button>
-              </div>
+            
 
             <CalendarUI
               mode="single"
@@ -278,15 +270,12 @@ export default function Calendar({ isAuthenticated = false }: { isAuthenticated?
               onSelect={setDate}
               className="rounded-md bg-[#1e1e1e] border-[#333] text-white"
               modifiers={{
-                holiday: events
-                  .filter(event => event.type === "holiday")
-                  .map(event => event.date),
-                activity: events
-                  .filter(event => event.type === "activity")
-                  .map(event => event.date),
-                exam: events
-                  .filter(event => event.type === "exam")
-                  .map(event => event.date),
+                holiday: events.filter(event => event.type === "holiday").map(event => event.date),
+                test: events.filter(event => event.type === "test").map(event => event.date),
+                trip: events.filter(event => event.type === "trip").map(event => event.date),
+                exam: events.filter(event => event.type === "exam").map(event => event.date),
+                meeting: events.filter(event => event.type === "meeting").map(event => event.date),
+                event: events.filter(event => event.type === "event").map(event => event.date),
               }}
               modifiersStyles={{
                 holiday: { 
@@ -294,14 +283,29 @@ export default function Calendar({ isAuthenticated = false }: { isAuthenticated?
                   color: "rgb(239, 68, 68)",
                   fontWeight: "bold"
                 },
-                activity: { 
-                  backgroundColor: "rgba(38, 166, 154, 0.15)",
-                  color: "rgb(38, 166, 154)",
+                test: { 
+                  backgroundColor: "rgba(147, 51, 234, 0.15)",
+                  color: "rgb(147, 51, 234)",
+                  fontWeight: "bold"
+                },
+                trip: { 
+                  backgroundColor: "rgba(59, 130, 246, 0.15)",
+                  color: "rgb(59, 130, 246)",
                   fontWeight: "bold"
                 },
                 exam: { 
                   backgroundColor: "rgba(245, 158, 11, 0.15)",
                   color: "rgb(245, 158, 11)",
+                  fontWeight: "bold"
+                },
+                meeting: { 
+                  backgroundColor: "rgba(16, 185, 129, 0.15)",
+                  color: "rgb(16, 185, 129)",
+                  fontWeight: "bold"
+                },
+                event: { 
+                  backgroundColor: "rgba(236, 72, 153, 0.15)",
+                  color: "rgb(236, 72, 153)",
                   fontWeight: "bold"
                 },
               }}

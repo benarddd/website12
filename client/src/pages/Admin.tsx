@@ -838,9 +838,12 @@ const Admin = () => {
                                 <SelectValue placeholder="Zgjidhni llojin" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="activity">Aktivitet</SelectItem>
+                                <SelectItem value="test">Test</SelectItem>
+                                <SelectItem value="trip">Ekskursion</SelectItem>
                                 <SelectItem value="holiday">Pushim</SelectItem>
                                 <SelectItem value="exam">Provim</SelectItem>
+                                <SelectItem value="meeting">Mbledhje</SelectItem>
+                                <SelectItem value="event">Event Shkollor</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
