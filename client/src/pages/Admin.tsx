@@ -50,6 +50,14 @@ const Admin = () => {
   const [mediaPreview, setMediaPreview] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // State for new calendar event
+  const [newEvent, setNewEvent] = useState({
+    title: "",
+    description: "",
+    eventType: "activity",
+    eventDate: new Date().toISOString().split("T")[0]
+  });
+
   // Funksion për formatimin e datës
   const formatDate = (dateString: Date) => {
     return format(new Date(dateString), "dd MMMM yyyy, HH:mm");
@@ -800,6 +808,8 @@ const Admin = () => {
                               id="eventTitle"
                               placeholder="p.sh. Mbledhje e Stafit"
                               className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                              value={newEvent.title}
+                              onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
                             />
                           </div>
 
@@ -811,6 +821,8 @@ const Admin = () => {
                               id="eventDescription"
                               placeholder="Përshkrimi i detajuar i ngjarjes"
                               className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                              value={newEvent.description}
+                              onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
                             />
                           </div>
 
@@ -819,9 +831,8 @@ const Admin = () => {
                               Lloji i Ngjarjes*
                             </label>
                             <Select
-                              onValueChange={(value) => {
-                                // Handle value change
-                              }}
+                              value={newEvent.eventType}
+                              onValueChange={(value: string) => setNewEvent({ ...newEvent, eventType: value })}
                             >
                               <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
                                 <SelectValue placeholder="Zgjidhni llojin" />
@@ -842,10 +853,53 @@ const Admin = () => {
                               id="eventDate"
                               type="date"
                               className="bg-gray-700 border-gray-600 text-white"
+                              value={newEvent.eventDate}
+                              onChange={(e) => setNewEvent({ ...newEvent, eventDate: e.target.value })}
                             />
                           </div>
 
-                          <Button className="bg-teal-600 hover:bg-teal-700 text-white mt-4">
+                          <Button 
+                            className="bg-teal-600 hover:bg-teal-700 text-white mt-4"
+                            onClick={async () => {
+                              try {
+                                const response = await fetch('/api/calendar-events', {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                  },
+                                  body: JSON.stringify(newEvent),
+                                });
+
+                                if (!response.ok) {
+                                  throw new Error('Failed to create event');
+                                }
+
+                                const data = await response.json();
+                                if (data.success) {
+                                  toast({
+                                    title: "Ngjarja u shtua me sukses",
+                                    description: "Ngjarja e re u shtua në kalendar.",
+                                    variant: "default",
+                                  });
+
+                                  // Reset form
+                                  setNewEvent({
+                                    title: "",
+                                    description: "",
+                                    eventType: "activity",
+                                    eventDate: new Date().toISOString().split("T")[0]
+                                  });
+                                }
+                              } catch (error) {
+                                console.error('Error adding event:', error);
+                                toast({
+                                  title: "Gabim",
+                                  description: "Ndodhi një gabim gjatë shtimit të ngjarjes.",
+                                  variant: "destructive",
+                                });
+                              }
+                            }}
+                          >
                             Shto Ngjarjen
                           </Button>
                         </div>
