@@ -866,6 +866,7 @@ const Admin = () => {
                                   method: 'POST',
                                   headers: {
                                     'Content-Type': 'application/json',
+                                    'Authorization': 'Basic YWRtaW46YWRtaW4xMjM=' // admin:admin123 in base64
                                   },
                                   body: JSON.stringify(newEvent),
                                 });
