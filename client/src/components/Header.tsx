@@ -189,7 +189,6 @@ export default function Header() {
 
           {/* Navigation Links - Desktop */}
           <div className="hidden md:flex items-center space-x-6">
-            <ThemeToggle /> {/* Added Theme Toggle here */}
             {[
               { path: "/maturashtetrore", label: "Matura Shteterore" },
               { path: "/about", label: "Rreth Shkollës" },

@@ -11,7 +11,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
   const [loading, setLoading] = useState(false);
   const [prevLocation, setPrevLocation] = useState('');
   const [location] = useLocation();
-  const [isDarkMode, setIsDarkMode] = useState(false); // Added state for dark mode
+  //Removed: const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     // Always reset scroll position when mounting component
@@ -93,25 +93,26 @@ export default function PageTransition({ children }: PageTransitionProps) {
     },
   };
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    localStorage.setItem('darkMode', (!isDarkMode).toString());
-  };
 
-  useEffect(() => {
-    const storedDarkMode = localStorage.getItem('darkMode');
-    if (storedDarkMode) {
-      setIsDarkMode(JSON.parse(storedDarkMode));
-    }
-  }, []);
+  //Removed: const toggleDarkMode = () => {
+  //Removed:   setIsDarkMode(!isDarkMode);
+  //Removed:   localStorage.setItem('darkMode', (!isDarkMode).toString());
+  //Removed: };
+
+  //Removed: useEffect(() => {
+  //Removed:   const storedDarkMode = localStorage.getItem('darkMode');
+  //Removed:   if (storedDarkMode) {
+  //Removed:     setIsDarkMode(JSON.parse(storedDarkMode));
+  //Removed:   }
+  //Removed: }, []);
 
   return (
-    <div className={`relative min-h-screen ${isDarkMode ? 'dark' : ''}`}> {/* Added dark mode class */}
-      <header className="bg-gray-800 dark:bg-gray-200 p-4"> {/* Added header */}
-        <button onClick={toggleDarkMode} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-          {isDarkMode ? 'Light Mode' : 'Dark Mode'}
-        </button>
-      </header>
+    <div className={`relative min-h-screen`}> 
+      {/*Removed: <header className="bg-gray-800 dark:bg-gray-200 p-4">
+        Removed: <button onClick={toggleDarkMode} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Removed: {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+        Removed: </button>
+      Removed: </header>*/}
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div
