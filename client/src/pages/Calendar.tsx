@@ -37,7 +37,7 @@ interface CalendarProps {
   isAuthenticated?: boolean;
 }
 
-export default function Calendar() {
+export default function Calendar({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
   const { toast } = useToast();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedDayEvents, setSelectedDayEvents] = useState<FormattedCalendarEvent[]>([]);
