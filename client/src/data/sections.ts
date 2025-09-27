@@ -17,22 +17,6 @@ export interface SectionItem {
 
 export const sections: SectionItem[] = [
   {
-    title: "Kurrikula",
-    description: "Programet akademike dhe lëndët e ofruara në shkollën tonë",
-    icon: "fas fa-book",
-    image: "https://images.unsplash.com/photo-1577896851231-70ef18881754?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    type: "list",
-    contentTitle: "Programet Mësimore",
-    contentItems: [
-      "Profili Shkencor",
-      "Profili Shoqëror",
-      "Gjuha dhe komunikimi",
-      "Matematika dhe shkencat",
-      "Artet dhe sportet"
-    ],
-    contentLink: "Shkarko planin mësimor"
-  },
-  {
     title: "Jeta Studentore",
     description: "Aktivitetet, klubet dhe jeta sociale për nxënësit",
     icon: "fas fa-users",
@@ -47,6 +31,7 @@ export const sections: SectionItem[] = [
     ],
     contentLink: "Shiko kalendarin e aktiviteteve"
   },
+
   {
     title: "Portali i Prindërve",
     description: "Informacione dhe shërbime për prindërit",
@@ -60,7 +45,8 @@ export const sections: SectionItem[] = [
       "Orari i takimeve me prindërit",
       "Kalendari i aktiviteteve"
     ],
-    buttonText: "Hyr në portal"
+    buttonText: "Hyr në portal",
+    
   },
   {
     title: "Shkolla Qendër Komunitare",

@@ -23,26 +23,20 @@ interface Book {
   cover: string;
   genre: BookGenre[];
   description: string;
-  year: number;
-  format: "PDF" | "EPUB" | "BOTH";
-  language: string;
-  pages: number;
+
+
   readLink?: string;  // Link për lexim online
 }
 
 const books: Book[] = [
   {
     id: 1,
-    title: "Vepra Letrare të Ismail Kadare",
+    title: "Gjenerali i Ushtrisë së Vdekur",
     author: "Ismail Kadare",
-    cover: "https://images.unsplash.com/photo-1581795669633-91ef7c9699a8?q=80&w=400&h=600&auto=format&fit=crop",
-    genre: ["literature", "classics", "fiction"],
-    description: "Përmbledhje e veprave kryesore të shkrimtarit të madh shqiptar, përfshirë Pallatin e Ëndrrave, Kronikë në Gur, dhe Prilli i Thyer.",
-    year: 2015,
-    format: "BOTH",
-    language: "Shqip",
-    pages: 1200,
-    readLink: "https://gutenberg.org"
+    cover: "https://onufri.com/wp-content/uploads/2020/04/GJENERALI_I_USHTRISE_SE_VDEKUR_2015_OK-1302x2048.jpg",
+    genre: ["literature"],
+    description: "",
+    readLink: "https://archive.org/details/kadare-gjenerali-i-ushtrise-se-vdekur/page/84/mode/2up"
   },
   {
     id: 2,
@@ -51,10 +45,6 @@ const books: Book[] = [
     cover: "https://images.unsplash.com/photo-1581579438747-104c53d03770?q=80&w=400&h=600&auto=format&fit=crop",
     genre: ["encyclopedia", "art"],
     description: "Prezantimi i detajuar i artit botëror nga prehistoria deri në shekullin XXI, me mbi 5000 imazhe dhe analiza.",
-    year: 2021,
-    format: "PDF",
-    language: "Shqip",
-    pages: 850,
     readLink: "https://encyclopedia.org"
   },
   {
@@ -64,10 +54,6 @@ const books: Book[] = [
     cover: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=400&h=600&auto=format&fit=crop",
     genre: ["poetry", "literature"],
     description: "Antologji e poezisë shqiptare, duke përfshirë veprat e De Radës, Naimit, Migjenit, Poradecit dhe poetëve bashkëkohorë.",
-    year: 2019,
-    format: "BOTH",
-    language: "Shqip",
-    pages: 420,
     readLink: "https://poetryfoundation.org"
   },
   {
@@ -77,10 +63,6 @@ const books: Book[] = [
     cover: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=400&h=600&auto=format&fit=crop",
     genre: ["encyclopedia", "science"],
     description: "Enciklopedi gjithëpërfshirëse mbi zbulimet shkencore, teknologjinë dhe inovacionet në të gjitha fushat.",
-    year: 2023,
-    format: "PDF",
-    language: "Shqip",
-    pages: 1500,
     readLink: "https://scienceencyclopedia.org"
   },
   {
@@ -90,10 +72,6 @@ const books: Book[] = [
     cover: "https://images.unsplash.com/photo-1525354215162-c1fbcc0001b6?q=80&w=400&h=600&auto=format&fit=crop",
     genre: ["classics", "literature"],
     description: "Përmbledhje e kryeveprave të letërsisë botërore nga Homeri deri te laureatët modernë të Çmimit Nobel.",
-    year: 2018,
-    format: "BOTH",
-    language: "Shqip",
-    pages: 2200,
     readLink: "https://worldliterature.org"
   },
   {
@@ -103,10 +81,6 @@ const books: Book[] = [
     cover: "https://images.unsplash.com/photo-1544947892-21e54adb4681?q=80&w=400&h=600&auto=format&fit=crop",
     genre: ["philosophy", "nonfiction"],
     description: "Analizë e thellë e shkollave filozofike dhe ndikimit të tyre në zhvillimin e shoqërisë njerëzore.",
-    year: 2020,
-    format: "PDF",
-    language: "Shqip",
-    pages: 560,
     readLink: "https://philosophy.org"
   },
   {
@@ -116,10 +90,6 @@ const books: Book[] = [
     cover: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=400&h=600&auto=format&fit=crop",
     genre: ["art", "history"],
     description: "Vështrim i gjerë i zhvillimit të artit shqiptar nga lashtësia deri në kohët moderne, me fokus në pikturë, skulpturë dhe arkitekturë.",
-    year: 2017,
-    format: "BOTH",
-    language: "Shqip",
-    pages: 380,
     readLink: "https://albanianart.org"
   },
   {
@@ -129,10 +99,6 @@ const books: Book[] = [
     cover: "https://images.unsplash.com/photo-1594312915251-48db9280c8f1?q=80&w=400&h=600&auto=format&fit=crop",
     genre: ["encyclopedia", "history"],
     description: "Një prezantim me harta dhe analiza të periudhave kryesore historike që formësuan civilizimin njerëzor.",
-    year: 2022,
-    format: "PDF",
-    language: "Shqip",
-    pages: 680,
     readLink: "https://worldhistoryatlas.org"
   },
   {
@@ -142,10 +108,6 @@ const books: Book[] = [
     cover: "https://images.unsplash.com/photo-1605722625766-a4c989c747a4?q=80&w=400&h=600&auto=format&fit=crop",
     genre: ["art", "literature"],
     description: "Botim akademik që pasqyron zhvillimin e krijimtarisë artistike në Shqipëri përgjatë periudhave të ndryshme.",
-    year: 2021,
-    format: "PDF",
-    language: "Shqip",
-    pages: 320,
     readLink: "https://academyofarts.org"
   },
   {
@@ -155,10 +117,6 @@ const books: Book[] = [
     cover: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=400&h=600&auto=format&fit=crop",
     genre: ["poetry", "literature"],
     description: "Përmbledhje e poezisë moderne evropiane e përkthyer në shqip, me poetë nga Franca, Italia, Anglia dhe vende të tjera evropiane.",
-    year: 2019,
-    format: "BOTH",
-    language: "Shqip",
-    pages: 450,
     readLink: "https://europeanpoetry.org"
   },
   {
@@ -168,10 +126,6 @@ const books: Book[] = [
     cover: "https://images.unsplash.com/photo-1530026186672-2cd00ffc50fe?q=80&w=400&h=600&auto=format&fit=crop",
     genre: ["encyclopedia", "science"],
     description: "Informacion i detajuar dhe ilustrime mbi florën, faunën, ekosisteme dhe fenomene natyrore të planetit tonë.",
-    year: 2023,
-    format: "PDF",
-    language: "Shqip",
-    pages: 960,
     readLink: "https://natureencyclopedia.org"
   },
   {
@@ -181,10 +135,6 @@ const books: Book[] = [
     cover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?q=80&w=400&h=600&auto=format&fit=crop",
     genre: ["classics", "literature"],
     description: "Përkthime dhe analiza të veprave të Homerit, Sofokliut, Virgjilit, Ovidit dhe autorëve të tjerë klasikë.",
-    year: 2018,
-    format: "BOTH",
-    language: "Shqip",
-    pages: 720,
     readLink: "https://classicalliterature.org"
   }
 ];
@@ -326,10 +276,7 @@ export default function DigitalLibrary() {
     
     const matchesGenre = selectedGenre === "all" || book.genre.includes(selectedGenre);
     
-    const matchesFormat = selectedFormat === "ALL" || book.format === selectedFormat || 
-      (selectedFormat === "BOTH" && book.format === "BOTH");
-    
-    return matchesSearch && matchesGenre && matchesFormat;
+    return matchesSearch && matchesGenre;
   });
   
   return (
@@ -484,23 +431,22 @@ export default function DigitalLibrary() {
                       <div className="flex-grow">
                         <div className="flex items-center mb-3">
                           <span className={`text-xs font-semibold px-2 py-1 rounded mr-2 ${
-                            book.format === "PDF" ? "bg-[#26a69a] text-white" : 
-                            book.format === "EPUB" ? "bg-[#7e57c2] text-white" : 
+                            
                             "bg-[#ff5722] text-white"
                           }`}>
-                            {book.format}
+                         
                           </span>
-                          <span className="text-[#c0c0c0] text-xs">{book.language}</span>
+                          
                         </div>
                         
                         <h3 className="text-lg font-bold text-white mb-1 line-clamp-2">{book.title}</h3>
-                        <p className="text-[#c0c0c0] text-sm mb-3">{book.author} • {book.year}</p>
+                        
                         
                         <p className="text-[#c0c0c0] text-sm mb-4 line-clamp-3">{book.description}</p>
                       </div>
                       
                       <div className="flex justify-between items-center mt-auto">
-                        <span className="text-[#c0c0c0] text-xs">{book.pages} faqe</span>
+                        
                         <a 
                           href={book.readLink}
                           target="_blank"

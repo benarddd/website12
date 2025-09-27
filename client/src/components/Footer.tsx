@@ -27,7 +27,7 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-bold text-lg mb-6">Lidhje të Shpejta</h4>
             <ul className="space-y-3">
-              <li><a href="/home" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Kryefaqja</a></li>
+              <li><a href="/" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Kryefaqja</a></li>
               <li><a href="/about" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Rreth Shkollës</a></li>
               <li><a href="/sections" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Seksionet</a></li>
               <li><a href="/news" className="text-[#c0c0c0] hover:text-[#26a69a] transition-colors duration-300">Lajmet</a></li>
@@ -55,12 +55,8 @@ export default function Footer() {
                 <span className="text-[#c0c0c0]">Rruga 4 Bashkim Kodra, Tiranë, Shqipëri</span>
               </li>
               <li className="flex items-center">
-                <i className="fas fa-phone-alt text-[#26a69a] mr-3"></i>
-                <span className="text-[#c0c0c0]">+355 xx xxx xxxx</span>
-              </li>
-              <li className="flex items-center">
                 <i className="fas fa-envelope text-[#26a69a] mr-3"></i>
-                <span className="text-[#c0c0c0]">abdullaketa@gmail.com</span>
+                <span className="text-[#c0c0c0]">abdullaketa@yahoo.com</span>
               </li>
               <li className="flex items-center">
                 <i className="fas fa-clock text-[#26a69a] mr-3"></i>
@@ -73,7 +69,7 @@ export default function Footer() {
         <hr className="border-gray-800 my-8" />
         
         <div className="flex flex-col md:flex-row justify-between items-center">
-          <p className="text-[#c0c0c0] text-sm mb-4 md:mb-0">© {new Date().getFullYear()} Gjimnazi "Abdulla Keta". Krijuar, projektuar dhe dizenjuar nga nxenesit e shkolles sone.</p>
+          <em className="text-[#c0c0c0] text-sm mb-4 md:mb-0">Website-i zyrtar i gjimnazit ‘Abdulla Keta’, i konceptuar, zhvilluar dhe dizajnuar nga nxënësi Benard Përnezha</em>
           <div className="flex space-x-6">
           </div>
         </div>

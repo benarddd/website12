@@ -112,7 +112,7 @@ export function SectionCard({ section }: SectionCardProps) {
               )}
 
               {buttonText && (
-                <a href="#" className="bg-[#7e57c2] hover:bg-opacity-80 text-white py-2 px-4 rounded-md inline-block transition-all duration-300">
+                <a href="https://smip.al" className="bg-[#7e57c2] hover:bg-opacity-80 text-white py-2 px-4 rounded-md inline-block transition-all duration-300">
                   <i className="fas fa-sign-in-alt mr-2"></i>{buttonText}
                 </a>
               )}

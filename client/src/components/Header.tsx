@@ -13,7 +13,7 @@ function ThemeToggle() {
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
-    localStorage.setItem('darkMode', !isDarkMode);
+    
     document.body.classList.toggle('dark');
   };
 
@@ -192,7 +192,7 @@ export default function Header() {
             {[
               { path: "/maturashtetrore", label: "Matura Shteterore" },
               { path: "/about", label: "Rreth Shkollës" },
-              { path: "/sections", label: "Kategorite" },
+              { path: "/sections", label: "Kategoritë" },
               { path: "/news", label: "Lajmet" },
               { path: "/calendar", label: "Kalendari" },
               { path: "/schedule", label: "Orari" },

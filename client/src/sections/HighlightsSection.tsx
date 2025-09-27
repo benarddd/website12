@@ -22,7 +22,7 @@ const schoolHighlights = [
   {
     id: 3,
     title: "Aktivitete sportive",
-    description: "Fusha sportive dhe palestër moderne për aktivitete të ndryshme",
+    description: "Palestër moderne për aktivitete të ndryshme",
     icon: "fa-basketball-ball",
     color: "#4CAF50"
   },

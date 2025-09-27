@@ -309,10 +309,7 @@ export default function ModernHeroSection() {
             </motion.span>
             <br />
             <motion.span 
-              className="inline-block relative text-white"
-              initial={{ rotateX: -90 }}
-              animate={{ rotateX: 0 }}
-              transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
+              className="inline-block relative text-white slide-in-blurred-top"
               whileHover={{
                 scale: 1.05,
                 color: "#26a69a",
@@ -339,12 +336,21 @@ export default function ModernHeroSection() {
         </motion.div>
 
         <motion.p 
-          initial={{ y: 30, opacity: 0 }}
+          initial={{ y: 90, x: 10, opacity: 0 }}
           animate={subtitleControls}
-          className="text-l md:text-2xl text-gray-100 max-w-1l mb-20"
+          className="text-m md:text-xl text-gray-100 max-w-1l mb-5000 duration-100"
           style={{ willChange: "transform, opacity" }}
         >
-          <em>Një hap në teknologji, drejt një bote plot magji</em>
+          <em>Një hap në teknologji...</em>
+
+        </motion.p>
+        <motion.p 
+          initial={{ y: 70, opacity: 0 }}
+          animate={subtitleControls}
+          className="text-m md:text-xl text-gray-100 max-w-5l mb-10 duration-20 delay=10"
+          style={{ willChange: "transform, opacity" }}
+        >
+          <em>...drejt një bote plot magji !</em>
 
         </motion.p>
 
