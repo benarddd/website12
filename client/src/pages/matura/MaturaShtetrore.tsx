@@ -8,7 +8,7 @@ export default function maturashtetrore() {
       id: 1,
       name: "Gjuhë Shqipe dhe Letërsi",
       icon: "📚",
-      description: "Provim i detyrueshëm për të gjithë nxënësit. Vlerëson aftësitë gjuhësore dhe njohuritë letrare."
+      description: "Aspasia"
     },
     {
       id: 2,
